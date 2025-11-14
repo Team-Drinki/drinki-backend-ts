@@ -6,7 +6,7 @@
     "module": "Preserve",
     "moduleDetection": "force",
     "jsx": "react-jsx",
-    "allowJs": true,
+    "allowJs": false,
 
     // Bundler mode
     "moduleResolution": "bundler",
@@ -24,6 +24,12 @@
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false
+    "noPropertyAccessFromIndexSignature": false,
+
+    //
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noImplicitReturns": true,
+    "alwaysStrict": true,
   }
 }
