@@ -8,6 +8,6 @@ const sqlite = new Database('sqlite.db')
 export const db = drizzle(sqlite, { 
   schema: { 
     ...schema, 
-    ...relations  // ✅ Relations 포함
+    ...relations 
   } 
 })
