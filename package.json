@@ -5,17 +5,27 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "start": "bun run src/index.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "drizzle-kit": "^0.31.0"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
+    "@elysiajs/cookie": "^0.8.0",
+    "@elysiajs/jwt": "^1.1.1",
     "@elysiajs/openapi": "^1.4.11",
+    "arctic": "^2.3.2",
+    "drizzle-orm": "^0.44.7",
     "elysia": "^1.4.16"
   }
 }
