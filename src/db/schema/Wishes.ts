@@ -1,8 +1,8 @@
 import { sqliteTable, integer } from 'drizzle-orm/sqlite-core'
 import { sql }                  from 'drizzle-orm'
 
-import { users }    from './Users.ts'
-import { alcohols } from './Alcohols.ts'
+import { users }    from './Users'
+import { alcohols } from './Alcohols'
 
 export const wishes = sqliteTable('wishes', {
   id:        integer('id').primaryKey({ autoIncrement: true }),
