@@ -1,6 +1,6 @@
 import { sqliteTable, text, integer, real, blob } from 'drizzle-orm/sqlite-core'
 
-import { alcoholCategories } from './AlcoholCategories.ts'
+import { alcoholCategories } from './AlcoholCategories'
 
 export const alcoholStyles = sqliteTable('alcohol_styles', {
   id:         integer('id').primaryKey({ autoIncrement: true }),

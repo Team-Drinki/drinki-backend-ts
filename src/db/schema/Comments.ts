@@ -1,7 +1,7 @@
 import { sqliteTable, text, integer, real, blob } from 'drizzle-orm/sqlite-core'
 import { sql } from 'drizzle-orm'
 
-import { users } from './Users.ts'
+import { users } from './Users'
 
 export const comments = sqliteTable('comments', {
   id:         integer('id').primaryKey({ autoIncrement: true }),

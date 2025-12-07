@@ -1,7 +1,7 @@
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
 import { sql }                        from 'drizzle-orm'
 
-import { users } from './Users.js'
+import { users } from './Users'
 
 export const reactions = sqliteTable('reactions', {
   id:           integer('id').primaryKey({ autoIncrement: true }),
