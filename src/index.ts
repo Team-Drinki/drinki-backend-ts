@@ -5,6 +5,7 @@ import { config } from './utils/env'
 import { alcohol } from './modules/alcohol'
 import { auth } from './modules/auth'
 import { t } from 'elysia'
+import { authGuard } from './modules/auth/middleware'
 // import { tastingNoteController } from './modules/tasting-note'
 
 const app = new Elysia()
@@ -32,8 +33,16 @@ const app = new Elysia()
         })
       })
     )
-    .use(alcohol)
     .use(auth)
+    .use(authGuard)
+    // 테스트용 API(인증 미들웨어 확인)
+    .get('/me', ({ authUser }) => {
+        return {
+            message: 'OK',
+            userId: authUser.userId
+        }
+    })
+    .use(alcohol)
     // .use(tastingNoteController)
   )
   .get('/', () => 'Drinki API v1.0.0')
