@@ -1,7 +1,8 @@
 import { Elysia } from 'elysia'
 import { t } from 'elysia'
 import { config } from '../../utils/env'
-import { GoogleAuthService } from './service'
+import { GoogleAuthService } from './googleAuthService'
+import { AuthTokenService } from './authTokenService'
 
 const isProduction = process.env.NODE_ENV === 'production'
 
@@ -19,9 +20,12 @@ export const auth = (app: Elysia) =>
                     maxAge: 60 * 5 // 5분
                 })
                 console.log('[login] generated state =', state)
+
                 const redirect = GoogleAuthService.buildAuthUrl(state)
+
                 set.status = 302
                 set.headers['Location'] = redirect
+
                 return redirect
             })
 
@@ -54,18 +58,11 @@ export const auth = (app: Elysia) =>
                 })
                 console.log('[callback] our user =', user)
 
-                const payload = {
-                    userId: user.id
-                }
-
-                const accessToken = await accessJwt.sign({
-                    ...payload,
-                    type: 'access'
-                })
-                const refreshToken = await refreshJwt.sign({
-                    ...payload,
-                    type: 'refresh'
-                })
+                const { accessToken, refreshToken } = await AuthTokenService.issueTokens(
+                    user.id,
+                    accessJwt,
+                    refreshJwt
+                )
 
                 cookie.accessToken.set({
                     value: accessToken,
@@ -96,11 +93,13 @@ export const auth = (app: Elysia) =>
                     state: t.Optional(t.String())
                 })
             })
+
             .post('/logout', ({ cookie, set }) => {
                 cookie.accessToken.remove()
                 cookie.refreshToken.remove()
                 set.status = 204
             })
+
             .post('/refresh', async ({ cookie, set, accessJwt, refreshJwt }) => {
                 const refreshToken = cookie.refreshToken?.value
                 if (!refreshToken) {
@@ -108,38 +107,29 @@ export const auth = (app: Elysia) =>
                     return { message: 'No refresh token' }
                 }
 
-                let decoded
                 try {
-                    decoded = await refreshJwt.verify(refreshToken)
-                    if (decoded.type !== 'refresh') {
-                        throw new Error('Not a refresh token')
-                    }
+                    const newAccessToken = await AuthTokenService.refreshAccessToken(
+                        refreshToken,
+                        accessJwt,
+                        refreshJwt
+                    )
+
+                    cookie.accessToken.set({
+                        value: newAccessToken,
+                        httpOnly: true,
+                        secure: isProduction,
+                        sameSite: isProduction ? 'none' : 'lax',
+                        path: '/',
+                        maxAge: 60 * 10
+                    })
+
+                    console.log('[refresh] new accessToken =', newAccessToken)
                     console.log('[refresh] refreshToken =', refreshToken)
-                    console.log('[refresh] decoded refreshToken =', decoded)
-                } catch (e) {
+
+                    set.status = 204
+                } catch (err) {
                     set.status = 401
                     return { message: 'Invalid refresh token' }
                 }
-
-                const payload = {
-                    userId: decoded.userId
-                }
-
-                const newAccessToken = await accessJwt.sign({
-                    ...payload,
-                    type: 'access'
-                })
-
-                cookie.accessToken.set({
-                    value: newAccessToken,
-                    httpOnly: true,
-                    secure: isProduction,
-                    sameSite: isProduction ? 'none' : 'lax',
-                    path: '/',
-                    maxAge: 60 * 10 // 10분
-                })
-                console.log('[refresh] new accessToken =', cookie.accessToken.value)
-
-                set.status = 204
             })
     )
