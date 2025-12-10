@@ -1,19 +1,52 @@
 import { Elysia } from 'elysia'
 import openapi from '@elysiajs/openapi'
-
+import { jwt } from '@elysiajs/jwt'
+import { config } from './utils/env'
 import { alcohol } from './modules/alcohol'
-// import { userController } from './modules/user'
+import { auth } from './modules/auth'
+import { t } from 'elysia'
+import { authGuard } from './modules/auth/middleware'
 // import { tastingNoteController } from './modules/tasting-note'
 
 const app = new Elysia()
   .use(openapi())
   .group('/api/v1', app => app
+    .use(
+      jwt({
+        name: 'accessJwt',
+        secret: config.ACCESS_JWT_SECRET,
+        exp: '10m',
+        schema: t.Object({
+          userId: t.Number(),
+          type: t.String()
+        })
+      })
+    )
+    .use(
+      jwt({
+        name: 'refreshJwt',
+        secret: config.REFRESH_JWT_SECRET,
+        exp: '7d',
+        schema: t.Object({
+          userId: t.Number(),
+          type: t.String()
+        })
+      })
+    )
+    .use(auth)
+    .use(authGuard)
+    // 테스트용 API(인증 미들웨어 확인)
+    .get('/me', ({ authUser }) => {
+        return {
+            message: 'OK',
+            userId: authUser.userId
+        }
+    })
     .use(alcohol)
-    // .use(userController)
     // .use(tastingNoteController)
   )
   .get('/', () => 'Drinki API v1.0.0')
-  .listen(3000)
+  .listen(8000)
 
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
