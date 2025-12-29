@@ -1,11 +1,15 @@
 import { Elysia } from 'elysia'
+import { t } from 'elysia'
 import openapi from '@elysiajs/openapi'
+
 import { jwt } from '@elysiajs/jwt'
 import { config } from './utils/env'
-import { alcohol } from './modules/alcohol'
 import { auth } from './modules/auth'
-import { t } from 'elysia'
 import { authGuard } from './modules/auth/middleware'
+
+import { alcohol } from './modules/alcohol'
+import { user } from './modules/user'
+
 // import { tastingNoteController } from './modules/tasting-note'
 
 const app = new Elysia()
@@ -34,7 +38,7 @@ const app = new Elysia()
       })
     )
     .use(auth)
-    .use(authGuard)
+    .use(app => authGuard(app)) 
     // 테스트용 API(인증 미들웨어 확인)
     .get('/me', ({ authUser }) => {
         return {
@@ -43,6 +47,7 @@ const app = new Elysia()
         }
     })
     .use(alcohol)
+    .use(user)    // /users
     // .use(tastingNoteController)
   )
   .get('/', () => 'Drinki API v1.0.0')
