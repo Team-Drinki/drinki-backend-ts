@@ -1,6 +1,7 @@
+// __tests__/user.test.ts
 import { describe, expect, test, beforeAll, mock } from 'bun:test'
 import { createTestApp, createTestToken } from './setup'
-import { UserService, WishService } from '../src/modules/user/service'
+import type { Elysia } from 'elysia'
 
 describe('User API', () => {
   let app: Elysia
@@ -14,10 +15,10 @@ describe('User API', () => {
   // ===== 내 정보 관리 테스트 =====
   
   describe('My Profile Management', () => {
-    describe('GET /api/v1/users/me', () => {
+    describe('GET /api/v1/users/my', () => {
       test('should return my profile with valid token', async () => {
         mock.module('../src/modules/user/service', () => ({
-          UserService: {
+          User: {
             getUserProfile: mock(async (userId: number) => ({
               id: userId,
               socialType: 'google',
@@ -31,7 +32,7 @@ describe('User API', () => {
         }))
 
         const response = await app.handle(
-          new Request('http://localhost/api/v1/users/me', {
+          new Request('http://localhost/api/v1/users/my', {
             headers: {
               'Cookie': `accessToken=${validToken}`
             }
@@ -47,7 +48,7 @@ describe('User API', () => {
 
       test('should return 401 without token', async () => {
         const response = await app.handle(
-          new Request('http://localhost/api/v1/users/me')
+          new Request('http://localhost/api/v1/users/my')
         )
 
         expect(response.status).toBe(401)
@@ -55,7 +56,7 @@ describe('User API', () => {
 
       test('should return 401 with invalid token', async () => {
         const response = await app.handle(
-          new Request('http://localhost/api/v1/users/me', {
+          new Request('http://localhost/api/v1/users/my', {
             headers: {
               'Cookie': 'accessToken=invalid-token'
             }
@@ -66,10 +67,10 @@ describe('User API', () => {
       })
     })
 
-    describe('POST /api/v1/users/me', () => {
+    describe('POST /api/v1/users/my', () => {
       test('should update my profile with valid data', async () => {
         mock.module('../src/modules/user/service', () => ({
-          UserService: {
+          User: {
             updateUserProfile: mock(async (userId: number, data: any) => ({
               id: userId,
               socialType: 'google',
@@ -83,7 +84,7 @@ describe('User API', () => {
         }))
 
         const response = await app.handle(
-          new Request('http://localhost/api/v1/users/me', {
+          new Request('http://localhost/api/v1/users/my', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -100,180 +101,39 @@ describe('User API', () => {
         const body = await response.json()
         expect(body.nickname).toBe('Updated User')
       })
-    })
-  })
 
-  // ===== 내 위시리스트 테스트 =====
-  
-  describe('My Wish Management', () => {
-    describe('GET /api/v1/users/me/wishes', () => {
-      test('should return my wish list', async () => {
-        mock.module('../src/modules/user/service', () => ({
-          UserService: {
-            getUserWishList: mock(async (userId: number, query: any) => ({
-              items: [
-                {
-                  id: 1,
-                  name: '와인1',
-                  image: 'wine1.jpg',
-                  category: 'Wine',
-                  wish: 100,
-                  rating: 4.5,
-                  viewCnt: 500,
-                  noteCnt: 10,
-                  isWish: true
-                }
-              ],
-              pageUtil: {
-                page: 1,
-                size: 10,
-                total: 1,
-                totalPages: 1
-              }
-            }))
-          }
-        }))
-
+      test('should update nickname only', async () => {
         const response = await app.handle(
-          new Request('http://localhost/api/v1/users/me/wishes?page=1&size=10', {
-            headers: {
-              'Cookie': `accessToken=${validToken}`
-            }
-          })
-        )
-
-        expect(response.status).toBe(200)
-        const body = await response.json()
-        expect(body.items).toHaveLength(1)
-        expect(body.items[0].name).toBe('와인1')
-      })
-    })
-
-    describe('GET /api/v1/users/me/wishes/:alcoholId', () => {
-      test('should check if specific alcohol is wished', async () => {
-        mock.module('../src/modules/user/service', () => ({
-          WishService: {
-            isWished: mock(async () => true)
-          }
-        }))
-
-        const response = await app.handle(
-          new Request('http://localhost/api/v1/users/me/wishes/123', {
-            headers: {
-              'Cookie': `accessToken=${validToken}`
-            }
-          })
-        )
-
-        expect(response.status).toBe(200)
-        const body = await response.json()
-        expect(body.isWished).toBe(true)
-      })
-
-      test('should return false if not wished', async () => {
-        mock.module('../src/modules/user/service', () => ({
-          WishService: {
-            isWished: mock(async () => false)
-          }
-        }))
-
-        const response = await app.handle(
-          new Request('http://localhost/api/v1/users/me/wishes/456', {
-            headers: {
-              'Cookie': `accessToken=${validToken}`
-            }
-          })
-        )
-
-        expect(response.status).toBe(200)
-        const body = await response.json()
-        expect(body.isWished).toBe(false)
-      })
-    })
-
-    describe('POST /api/v1/users/me/wishes/:alcoholId', () => {
-      test('should add alcohol to wish list', async () => {
-        mock.module('../src/modules/user/service', () => ({
-          WishService: {
-            addWish: mock(async () => {})
-          }
-        }))
-
-        const response = await app.handle(
-          new Request('http://localhost/api/v1/users/me/wishes/123', {
+          new Request('http://localhost/api/v1/users/my', {
             method: 'POST',
             headers: {
+              'Content-Type': 'application/json',
               'Cookie': `accessToken=${validToken}`
-            }
+            },
+            body: JSON.stringify({
+              nickname: 'New Nickname'
+            })
           })
         )
 
         expect(response.status).toBe(200)
-        const body = await response.json()
-        expect(body.success).toBe(true)
       })
 
-      test('should return error if already wished', async () => {
-        mock.module('../src/modules/user/service', () => ({
-          WishService: {
-            addWish: mock(async () => {
-              throw new Error('Already wished')
-            })
-          }
-        }))
-
+      test('should return 422 with invalid nickname', async () => {
         const response = await app.handle(
-          new Request('http://localhost/api/v1/users/me/wishes/123', {
+          new Request('http://localhost/api/v1/users/my', {
             method: 'POST',
             headers: {
+              'Content-Type': 'application/json',
               'Cookie': `accessToken=${validToken}`
-            }
-          })
-        )
-
-        expect(response.status).toBe(500)
-      })
-    })
-
-    describe('DELETE /api/v1/users/me/wishes/:alcoholId', () => {
-      test('should remove alcohol from wish list', async () => {
-        mock.module('../src/modules/user/service', () => ({
-          WishService: {
-            removeWish: mock(async () => {})
-          }
-        }))
-
-        const response = await app.handle(
-          new Request('http://localhost/api/v1/users/me/wishes/123', {
-            method: 'DELETE',
-            headers: {
-              'Cookie': `accessToken=${validToken}`
-            }
-          })
-        )
-
-        expect(response.status).toBe(204)
-      })
-
-      test('should return error if wish not found', async () => {
-        mock.module('../src/modules/user/service', () => ({
-          WishService: {
-            removeWish: mock(async () => {
-              throw new Error('Wish not found')
+            },
+            body: JSON.stringify({
+              nickname: 'A' // too short (minLength: 2)
             })
-          }
-        }))
-
-        const response = await app.handle(
-          new Request('http://localhost/api/v1/users/me/wishes/123', {
-            method: 'DELETE',
-            headers: {
-              'Cookie': `accessToken=${validToken}`
-            }
           })
         )
 
-        expect(response.status).toBe(500)
+        expect(response.status).toBe(422)
       })
     })
   })
@@ -281,10 +141,10 @@ describe('User API', () => {
   // ===== 내 노트 테스트 =====
   
   describe('My Notes', () => {
-    describe('GET /api/v1/users/me/notes', () => {
+    describe('GET /api/v1/users/my/notes', () => {
       test('should return my notes', async () => {
         mock.module('../src/modules/user/service', () => ({
-          UserService: {
+          User: {
             getUserNotes: mock(async (userId: number, query: any) => ({
               items: [
                 {
@@ -308,7 +168,7 @@ describe('User API', () => {
         }))
 
         const response = await app.handle(
-          new Request('http://localhost/api/v1/users/me/notes?page=1&size=10', {
+          new Request('http://localhost/api/v1/users/my/notes?page=1&size=10', {
             headers: {
               'Cookie': `accessToken=${validToken}`
             }
@@ -323,7 +183,7 @@ describe('User API', () => {
 
       test('should return empty list when no notes', async () => {
         mock.module('../src/modules/user/service', () => ({
-          UserService: {
+          User: {
             getUserNotes: mock(async () => ({
               items: [],
               pageUtil: {
@@ -337,7 +197,7 @@ describe('User API', () => {
         }))
 
         const response = await app.handle(
-          new Request('http://localhost/api/v1/users/me/notes', {
+          new Request('http://localhost/api/v1/users/my/notes', {
             headers: {
               'Cookie': `accessToken=${validToken}`
             }
@@ -348,16 +208,28 @@ describe('User API', () => {
         const body = await response.json()
         expect(body.items).toHaveLength(0)
       })
+
+      test('should support pagination', async () => {
+        const response = await app.handle(
+          new Request('http://localhost/api/v1/users/my/notes?page=2&size=5', {
+            headers: {
+              'Cookie': `accessToken=${validToken}`
+            }
+          })
+        )
+
+        expect(response.status).toBe(200)
+      })
     })
   })
 
   // ===== 내 게시물 테스트 =====
   
   describe('My Posts', () => {
-    describe('GET /api/v1/users/me/posts', () => {
+    describe('GET /api/v1/users/my/posts', () => {
       test('should return my posts', async () => {
         mock.module('../src/modules/user/service', () => ({
-          UserService: {
+          User: {
             getUserPosts: mock(async (userId: number, query: any) => ({
               items: [
                 {
@@ -381,7 +253,7 @@ describe('User API', () => {
         }))
 
         const response = await app.handle(
-          new Request('http://localhost/api/v1/users/me/posts?page=1&size=10', {
+          new Request('http://localhost/api/v1/users/my/posts?page=1&size=10', {
             headers: {
               'Cookie': `accessToken=${validToken}`
             }
@@ -393,16 +265,44 @@ describe('User API', () => {
         expect(body.items).toHaveLength(1)
         expect(body.items[0].title).toBe('와인 추천')
       })
+
+      test('should return empty list when no posts', async () => {
+        mock.module('../src/modules/user/service', () => ({
+          User: {
+            getUserPosts: mock(async () => ({
+              items: [],
+              pageUtil: {
+                page: 1,
+                size: 10,
+                total: 0,
+                totalPages: 0
+              }
+            }))
+          }
+        }))
+
+        const response = await app.handle(
+          new Request('http://localhost/api/v1/users/my/posts', {
+            headers: {
+              'Cookie': `accessToken=${validToken}`
+            }
+          })
+        )
+
+        expect(response.status).toBe(200)
+        const body = await response.json()
+        expect(body.items).toHaveLength(0)
+      })
     })
   })
 
-  // ===== 특정 사용자 정보 테스트 (인증 필요) =====
+  // ===== 특정 사용자 정보 테스트 =====
   
-  describe('Public User APIs (Requires Auth)', () => {
+  describe('Public User APIs', () => {
     describe('GET /api/v1/users/:userId', () => {
-      test('should return public profile with valid token', async () => {
+      test('should return public profile', async () => {
         mock.module('../src/modules/user/service', () => ({
-          UserService: {
+          User: {
             getPublicProfile: mock(async (userId: number) => ({
               id: userId,
               nickname: 'Public User',
@@ -425,7 +325,27 @@ describe('User API', () => {
         expect(response.status).toBe(200)
         const body = await response.json()
         expect(body.nickname).toBe('Public User')
-        expect(body.socialType).toBeUndefined()
+        expect(body.socialType).toBeUndefined() // 공개 프로필에는 socialType 없음
+      })
+
+      test('should return 500 when user not found', async () => {
+        mock.module('../src/modules/user/service', () => ({
+          User: {
+            getPublicProfile: mock(async () => {
+              throw new Error('User not found')
+            })
+          }
+        }))
+
+        const response = await app.handle(
+          new Request('http://localhost/api/v1/users/99999', {
+            headers: {
+              'Cookie': `accessToken=${validToken}`
+            }
+          })
+        )
+
+        expect(response.status).toBe(500)
       })
 
       test('should return 401 without token', async () => {
@@ -436,71 +356,17 @@ describe('User API', () => {
         expect(response.status).toBe(401)
       })
     })
-
-    describe('GET /api/v1/users/:userId/wishes', () => {
-      test('should return wish list with valid token', async () => {
-        mock.module('../src/modules/user/service', () => ({
-          UserService: {
-            getPublicWishList: mock(async (userId: number, query: any) => ({
-              items: [
-                {
-                  id: 2,
-                  name: '위스키',
-                  image: 'whiskey.jpg',
-                  category: 'Whiskey',
-                  wish: 50,
-                  rating: 4.8,
-                  viewCnt: 300,
-                  noteCnt: 5,
-                  isWish: false
-                }
-              ],
-              pageUtil: {
-                page: 1,
-                size: 10,
-                total: 1,
-                totalPages: 1
-              }
-            }))
-          }
-        }))
-
-        const response = await app.handle(
-          new Request('http://localhost/api/v1/users/123/wishes', {
-            headers: {
-              'Cookie': `accessToken=${validToken}`
-            }
-          })
-        )
-
-        expect(response.status).toBe(200)
-        const body = await response.json()
-        expect(body.items).toHaveLength(1)
-        expect(body.items[0].name).toBe('위스키')
-      })
-
-      test('should return 401 without token', async () => {
-        const response = await app.handle(
-          new Request('http://localhost/api/v1/users/123/wishes')
-        )
-
-        expect(response.status).toBe(401)
-      })
-    })
   })
 
   // ===== 인증 관련 테스트 =====
   
   describe('Authentication', () => {
-    test('all endpoints should return 401 without token', async () => {
+    test('all endpoints should require authentication', async () => {
       const endpoints = [
-        '/api/v1/users/me',
-        '/api/v1/users/me/wishes',
-        '/api/v1/users/me/wishes/123',
-        '/api/v1/users/me/notes',
-        '/api/v1/users/me/posts',
-        '/api/v1/users/123',  // 공개 API도 인증 필요
-        '/api/v1/users/123/wishes'  // 공개 API도 인증 필요
+        '/api/v1/users/my',
+        '/api/v1/users/my/notes',
+        '/api/v1/users/my/posts',
+        '/api/v1/users/123'
       ]
 
       for (const endpoint of endpoints) {

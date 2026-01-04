@@ -1,11 +1,12 @@
 import { Elysia } from 'elysia'
 import { jwt } from '@elysiajs/jwt'
 import { cookie } from '@elysiajs/cookie'
-import { config } from '../src/utils/env'
 import { auth } from '../src/modules/auth'
 import { authGuard } from '../src/modules/auth/middleware'
 import { user } from '../src/modules/user'
+import { wish } from '../src/modules/wish'
 import { alcohol } from '../src/modules/alcohol'
+import { config } from '../src/utils/env'
 
 // 테스트용 앱 생성
 export const createTestApp = () => {
@@ -25,6 +26,7 @@ export const createTestApp = () => {
       .use(auth)
       .use(authGuard)
       .use(user)
+      .use(wish)
       .use(alcohol)
     )
 }
