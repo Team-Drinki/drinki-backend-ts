@@ -1,12 +1,12 @@
-import { defineConfig } from 'drizzle-kit'
+import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({
-  schema: './src/db/schema/index.ts',
-  out: './drizzle',
-  dialect: 'sqlite',
+  schema: "./src/db/schema/index.ts",
+  out: "./drizzle",
+  dialect: "sqlite",
   dbCredentials: {
-    url: './src/db/drinki.db',
+    url: "./src/db/drinki.db",
   },
   verbose: true,
-  strict: true
-})
+  strict: true,
+});

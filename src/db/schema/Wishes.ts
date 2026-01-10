@@ -1,15 +1,21 @@
-import { sqliteTable, integer } from 'drizzle-orm/sqlite-core'
-import { sql }                  from 'drizzle-orm'
+import { sqliteTable, integer } from "drizzle-orm/sqlite-core";
+import { sql } from "drizzle-orm";
 
-import { users }    from './Users'
-import { alcohols } from './Alcohols'
+import { users } from "./Users";
+import { alcohols } from "./Alcohols";
 
-export const wishes = sqliteTable('wishes', {
-  id:        integer('id').primaryKey({ autoIncrement: true }),
-  userId:    integer('user_id').notNull().references(() => users.id),
-  alcoholId: integer('alcohol_id').notNull().references(() => alcohols.id),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`)
-})
+export const wishes = sqliteTable("wishes", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id),
+  alcoholId: integer("alcohol_id")
+    .notNull()
+    .references(() => alcohols.id),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
 
-export type Wish    = typeof wishes.$inferSelect  // 조회용
-export type NewWish = typeof wishes.$inferInsert  // 생성용
+export type Wish = typeof wishes.$inferSelect; // 조회용
+export type NewWish = typeof wishes.$inferInsert; // 생성용
