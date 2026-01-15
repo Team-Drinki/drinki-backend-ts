@@ -10,8 +10,7 @@ import { authGuard } from "./modules/auth/middleware";
 import { alcohol } from "./modules/alcohol";
 import { user } from "./modules/user";
 import { wish } from "./modules/wish";
-
-// import { tastingNoteController } from './modules/tasting-note'
+import { tastingnote } from "./modules/tastingnote";
 
 const app = new Elysia()
   .use(openapi())
@@ -52,8 +51,8 @@ const app = new Elysia()
         })
         .use(alcohol)
         .use(user)
-        .use(wish),
-    // .use(tastingNoteController)
+        .use(wish)
+        .use(tastingnote),
   )
   .get("/", () => "Drinki API v1.0.0")
   .listen(8000);
