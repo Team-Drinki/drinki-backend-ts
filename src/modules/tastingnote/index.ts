@@ -7,8 +7,19 @@ import { TastingNoteModel } from './model'
 export const tastingnote = new Elysia({
   prefix: '/notes'
 })
+  .get('/', async ({ query }) => {
+    return await TastingNote.getNotes(query)
+  }, {
+    query: TastingNoteModel.SearchParams,
+    detail: {
+      summary: 'Get tasting note list'
+    },
+    response: {
+      200: TastingNoteModel.TastingNoteListResponse
+    }
+  })
   .get('/:noteId', async ({ params: { noteId }, set }) => {
-    const note = await TastingNote.getNote(noteId)
+    const note = await TastingNote.getNoteById(noteId)
 
     if (!note) {
       set.status = 404
