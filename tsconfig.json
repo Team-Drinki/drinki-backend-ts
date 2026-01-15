@@ -30,6 +30,6 @@
     "noImplicitAny": true,
     "strictNullChecks": true,
     "noImplicitReturns": true,
-    "alwaysStrict": true,
+    "alwaysStrict": true
   }
 }
