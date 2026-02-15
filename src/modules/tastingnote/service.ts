@@ -4,8 +4,8 @@ import { tastingNotes, users, reactions, comments, alcohols, alcoholCategories }
 import { TastingNoteModel } from './model'
 
 export abstract class TastingNote {
-  static async createNote(body: TastingNoteModel.CreateTastingNoteRequestType) {
-    const { title, writerId, alcoholId, createdTime, aroma_note, palate_note, finish_note, images } = body
+  static async createNote(userId: number, body: TastingNoteModel.CreateTastingNoteRequestType) {
+    const { title, alcoholId, createdTime, aroma_note, palate_note, finish_note, images } = body
 
     const createdAt = new Date(createdTime.replace(' ', 'T'))
 
@@ -13,7 +13,7 @@ export abstract class TastingNote {
       .insert(tastingNotes)
       .values({
         title,
-        userId: writerId,
+        userId: userId,
         alcoholId,
         aromaNote: aroma_note,
         palateNote: palate_note,
@@ -269,6 +269,10 @@ export abstract class TastingNote {
 
     if (!comment) {
       return { success: false, error: '존재하지 않는 댓글입니다.', status: 404 }
+    }
+
+    if (comment.deletedAt) {
+      return { success: false, error: '이미 삭제된 댓글입니다.', status: 400 }
     }
 
     if (comment.userId !== userId) {

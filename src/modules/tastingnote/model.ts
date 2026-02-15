@@ -78,7 +78,6 @@ export namespace TastingNoteModel {
 
     export const CreateTastingNoteRequest = t.Object({
         title: t.String(),
-        writerId: t.Numeric(),
         alcoholId: t.Numeric(),
         createdTime: t.String(),
         aroma_note: RatingMap,

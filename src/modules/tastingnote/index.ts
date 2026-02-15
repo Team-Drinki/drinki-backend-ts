@@ -171,6 +171,10 @@ export const tastingnote = new Elysia({
         set.status = 403
         return { error: result.error as string }
       }
+      if (result.status === 400) {
+        set.status = 400
+        return { error: result.error as string }
+      }
     }
 
     return result
@@ -184,8 +188,8 @@ export const tastingnote = new Elysia({
       tags: ['TastingNote']
     }
   })
-  .post('/', async ({ body, set }) => {
-    const newNote = await TastingNote.createNote(body)
+  .post('/', async ({ body, set, authUser }) => {
+    const newNote = await TastingNote.createNote(authUser.userId, body)
     set.status = 201
     return newNote
   }, {
