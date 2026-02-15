@@ -57,7 +57,12 @@ const app = new Elysia()
         .use(alcohol)
         .use(user)
         .use(wish)
+<<<<<<< HEAD
         .use(tastingnote),
+=======
+        .use(post)
+    // .use(tastingNoteController)
+>>>>>>> b1da9e0 (fix : post attach)
   )
   .get("/", () => "Drinki API v1.0.0")
   .listen(8000);
