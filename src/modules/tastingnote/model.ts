@@ -33,6 +33,7 @@ export namespace TastingNoteModel {
         comments: t.Array(Comment)
     })
 
+    // TODO : type 꼭 써야 하는지 확인
     export type CommentType = Static<typeof Comment>
     export type TastingNoteResponseType = Static<typeof TastingNoteResponse>
 
@@ -74,4 +75,48 @@ export namespace TastingNoteModel {
 
     export type SearchParamsType = Static<typeof SearchParams>
     export type TastingNoteListResponseType = Static<typeof TastingNoteListResponse>
+
+    export const CreateTastingNoteRequest = t.Object({
+        title: t.String(),
+        writerId: t.Numeric(),
+        alcoholId: t.Numeric(),
+        createdTime: t.String(),
+        aroma_note: RatingMap,
+        palate_note: RatingMap,
+        finish_note: RatingMap,
+        images: t.Array(t.String())
+    })
+
+    export const UpdateTastingNoteRequest = t.Object({
+        title: t.String(),
+        aroma_note: RatingMap,
+        palate_note: RatingMap,
+        finish_note: RatingMap,
+        images: t.Array(t.String())
+    })
+
+    export const CreateCommentRequest = t.Object({
+        parentId: t.Nullable(t.Number()),
+        content: t.String(),
+        createdTime: t.String()
+    })
+
+    export const UpdateCommentRequest = t.Object({
+        content: t.String()
+    })
+
+    export const HotTastingNoteListResponse = t.Object({
+        notes: t.Array(TastingNoteList)
+    })
+
+    export const BestTastingNoteListResponse = t.Object({
+        notes: t.Array(TastingNoteList)
+    })
+
+    export type CreateTastingNoteRequestType = Static<typeof CreateTastingNoteRequest>
+    export type UpdateTastingNoteRequestType = Static<typeof UpdateTastingNoteRequest>
+    export type CreateCommentRequestType = Static<typeof CreateCommentRequest>
+    export type UpdateCommentRequestType = Static<typeof UpdateCommentRequest>
+    export type HotTastingNoteListResponseType = Static<typeof HotTastingNoteListResponse>
+    export type BestTastingNoteListResponseType = Static<typeof BestTastingNoteListResponse>
 }

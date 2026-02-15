@@ -19,7 +19,10 @@ export const tastingNotes = sqliteTable("tasting_notes", {
     .notNull()
     .references(() => users.id),
   title: text("title", { length: 255 }).notNull(),
-  imageUrl: text("image_url"),
+  images: text("images", { mode: "json" })
+    .notNull()
+    .$type<string[]>()
+    .default(sql`('[]')`),
   aromaNote: text("aroma_note", { mode: "json" }).notNull(), // JSON stored as text
   palateNote: text("palate_note", { mode: "json" }).notNull(),
   finishNote: text("finish_note", { mode: "json" }).notNull(),
