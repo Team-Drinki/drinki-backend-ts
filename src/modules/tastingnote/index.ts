@@ -13,7 +13,8 @@ export const tastingnote = new Elysia({
   }, {
     query: TastingNoteModel.SearchParams,
     detail: {
-      summary: 'Get tasting note list'
+      summary: 'Get tasting note list',
+      tags: ['TastingNote']
     },
     response: {
       200: TastingNoteModel.TastingNoteListResponse
@@ -23,7 +24,8 @@ export const tastingnote = new Elysia({
     return await TastingNote.getHotNotes()
   }, {
     detail: {
-      summary: 'Get hot tasting notes'
+      summary: 'Get hot tasting notes',
+      tags: ['TastingNote']
     },
     response: {
       200: TastingNoteModel.HotTastingNoteListResponse
@@ -36,7 +38,8 @@ export const tastingnote = new Elysia({
       alcoholId: t.Numeric()
     }),
     detail: {
-      summary: 'Get best tasting notes by alcohol ID'
+      summary: 'Get best tasting notes by alcohol ID',
+      tags: ['TastingNote']
     },
     response: {
       200: TastingNoteModel.BestTastingNoteListResponse
@@ -56,7 +59,8 @@ export const tastingnote = new Elysia({
       noteId: t.Numeric()
     }),
     detail: {
-      summary: 'Get tasting note by ID'
+      summary: 'Get tasting note by ID',
+      tags: ['TastingNote']
     },
     response: {
       200: TastingNoteModel.TastingNoteResponse,
@@ -87,7 +91,8 @@ export const tastingnote = new Elysia({
     }),
     body: TastingNoteModel.UpdateTastingNoteRequest,
     detail: {
-      summary: 'Update tasting note'
+      summary: 'Update tasting note',
+      tags: ['TastingNote']
     }
   })
   .delete('/:noteId', async ({ params: { noteId }, set, authUser }) => {
@@ -110,7 +115,8 @@ export const tastingnote = new Elysia({
       noteId: t.Numeric()
     }),
     detail: {
-      summary: 'Delete tasting note'
+      summary: 'Delete tasting note',
+      tags: ['TastingNote']
     }
   })
   .post('/:noteId/comments', async ({ params: { noteId }, body, set, authUser }) => {
@@ -123,7 +129,8 @@ export const tastingnote = new Elysia({
     }),
     body: TastingNoteModel.CreateCommentRequest,
     detail: {
-      summary: 'Create comment'
+      summary: 'Create comment',
+      tags: ['TastingNote']
     }
   })
   .put('/:noteId/comments/:commentId', async ({ params: { commentId }, body, set, authUser }) => {
@@ -148,7 +155,8 @@ export const tastingnote = new Elysia({
     }),
     body: TastingNoteModel.UpdateCommentRequest,
     detail: {
-      summary: 'Update comment'
+      summary: 'Update comment',
+      tags: ['TastingNote']
     }
   })
   .delete('/:noteId/comments/:commentId', async ({ params: { commentId }, set, authUser }) => {
@@ -172,7 +180,8 @@ export const tastingnote = new Elysia({
       commentId: t.Numeric()
     }),
     detail: {
-      summary: 'Delete comment'
+      summary: 'Delete comment',
+      tags: ['TastingNote']
     }
   })
   .post('/', async ({ body, set }) => {
@@ -182,7 +191,8 @@ export const tastingnote = new Elysia({
   }, {
     body: TastingNoteModel.CreateTastingNoteRequest,
     detail: {
-      summary: 'Create tasting note'
+      summary: 'Create tasting note',
+      tags: ['TastingNote']
     }
   })
 
