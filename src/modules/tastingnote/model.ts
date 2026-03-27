@@ -79,7 +79,7 @@ export namespace TastingNoteModel {
     export const CreateTastingNoteRequest = t.Object({
         title: t.String(),
         alcoholId: t.Numeric(),
-        createdTime: t.String(),
+        createdTime: t.Date(),
         aroma_note: RatingMap,
         palate_note: RatingMap,
         finish_note: RatingMap,
@@ -97,7 +97,7 @@ export namespace TastingNoteModel {
     export const CreateCommentRequest = t.Object({
         parentId: t.Nullable(t.Number()),
         content: t.String(),
-        createdTime: t.String()
+        createdTime: t.Date()
     })
 
     export const UpdateCommentRequest = t.Object({

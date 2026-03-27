@@ -7,7 +7,7 @@ export abstract class TastingNote {
   static async createNote(userId: number, body: TastingNoteModel.CreateTastingNoteRequestType) {
     const { title, alcoholId, createdTime, aroma_note, palate_note, finish_note, images } = body
 
-    const createdAt = new Date(createdTime.replace(' ', 'T'))
+    const createdAt = createdTime
 
     const result = await db
       .insert(tastingNotes)
@@ -220,7 +220,13 @@ export abstract class TastingNote {
   static async createComment(noteId: number, userId: number, body: TastingNoteModel.CreateCommentRequestType) {
     const { content, parentId, createdTime } = body
 
-    const createdAt = new Date(createdTime.replace(' ', 'T'))
+    const note = await db.select().from(tastingNotes).where(eq(tastingNotes.id, noteId)).get()
+
+    if (!note) {
+      return { success: false, error: '존재하지 않는 테이스팅 노트입니다.', status: 404 }
+    }
+
+    const createdAt = createdTime
 
     const result = await db
       .insert(comments)
