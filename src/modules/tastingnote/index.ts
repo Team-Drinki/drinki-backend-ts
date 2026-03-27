@@ -121,6 +121,14 @@ export const tastingnote = new Elysia({
   })
   .post('/:noteId/comments', async ({ params: { noteId }, body, set, authUser }) => {
     const result = await TastingNote.createComment(noteId, authUser.userId, body)
+
+    if (!result.success) {
+      if (result.status === 404) {
+        set.status = 404
+        return { error: result.error as string }
+      }
+    }
+
     set.status = 201
     return result
   }, {
@@ -133,8 +141,8 @@ export const tastingnote = new Elysia({
       tags: ['TastingNote']
     }
   })
-  .put('/:noteId/comments/:commentId', async ({ params: { commentId }, body, set, authUser }) => {
-    const result = await TastingNote.updateComment(commentId, authUser.userId, body)
+  .put('/:noteId/comments/:commentId', async ({ params: { noteId, commentId }, body, set, authUser }) => {
+    const result = await TastingNote.updateComment(noteId, commentId, authUser.userId, body)
 
     if (!result.success) {
       if (result.status === 404) {
@@ -143,6 +151,10 @@ export const tastingnote = new Elysia({
       }
       if (result.status === 403) {
         set.status = 403
+        return { error: result.error as string }
+      }
+      if (result.status === 400) {
+        set.status = 400
         return { error: result.error as string }
       }
     }
@@ -159,8 +171,8 @@ export const tastingnote = new Elysia({
       tags: ['TastingNote']
     }
   })
-  .delete('/:noteId/comments/:commentId', async ({ params: { commentId }, set, authUser }) => {
-    const result = await TastingNote.deleteComment(commentId, authUser.userId)
+  .delete('/:noteId/comments/:commentId', async ({ params: { noteId, commentId }, set, authUser }) => {
+    const result = await TastingNote.deleteComment(noteId, commentId, authUser.userId)
 
     if (!result.success) {
       if (result.status === 404) {

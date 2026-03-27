@@ -245,13 +245,17 @@ export abstract class TastingNote {
     return { success: true, id: result.id }
   }
 
-  static async updateComment(commentId: number, userId: number, body: TastingNoteModel.UpdateCommentRequestType) {
+  static async updateComment(noteId: number, commentId: number, userId: number, body: TastingNoteModel.UpdateCommentRequestType) {
     const { content } = body
 
     const comment = await db.select().from(comments).where(eq(comments.id, commentId)).get()
 
     if (!comment) {
       return { success: false, error: '존재하지 않는 댓글입니다.', status: 404 }
+    }
+
+    if (comment.targetId !== noteId || comment.targetType !== 'tasting_note') {
+      return { success: false, error: '잘못된 요청입니다.', status: 400 }
     }
 
     if (comment.userId !== userId) {
@@ -270,11 +274,15 @@ export abstract class TastingNote {
     return { success: true, id: commentId }
   }
 
-  static async deleteComment(commentId: number, userId: number) {
+  static async deleteComment(noteId: number, commentId: number, userId: number) {
     const comment = await db.select().from(comments).where(eq(comments.id, commentId)).get()
 
     if (!comment) {
       return { success: false, error: '존재하지 않는 댓글입니다.', status: 404 }
+    }
+
+    if (comment.targetId !== noteId || comment.targetType !== 'tasting_note') {
+      return { success: false, error: '잘못된 요청입니다.', status: 400 }
     }
 
     if (comment.deletedAt) {
