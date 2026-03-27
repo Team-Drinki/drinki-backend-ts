@@ -213,6 +213,21 @@ async function seed() {
         noteCnt: 35,
         content: "50% 이상 정미한 쌀로 만든 최고급 다이긴조 사케",
       },
+      {
+        userId: user.id,
+        categoryId: categories[0]!.id, // 위스키
+        styleId: styles[1]!.id, // 블렌디드
+        locationId: locations[0]!.id, // 스코틀랜드
+        name: "조니워커 블루",
+        imageUrl: "https://via.placeholder.com/300x400",
+        price: 250000,
+        proof: 40,
+        rating: 4.7,
+        wishCnt: 200,
+        viewCnt: 1800,
+        noteCnt: 30,
+        content: "조니워커 가문의 정점에 있는 프리미엄 블렌디드 위스키",
+      },
     ];
 
     const createdAlcohols = await db
@@ -257,6 +272,17 @@ async function seed() {
           images: [],
           createdAt: new Date(Date.now() - 172800000), // 그저께
           updatedAt: new Date(Date.now() - 172800000),
+        },
+        {
+          userId: user.id,
+          alcoholId: createdAlcohols[8]!.id, // 조니워커 블루
+          title: "조니워커 블루 - 영원한 클래식",
+          aromaNote: { 과일: { 오렌지: 4 }, 꽃: { 헤더: 3 }, 오크: { 쉐리: 4 } },
+          palateNote: { 단맛: { 꿀: 5, 바닐라: 4 }, 스파이시: { 정향: 2 } },
+          finishNote: { 길이: { 김: 5 } },
+          images: ["https://via.placeholder.com/300x300"],
+          createdAt: new Date(),
+          updatedAt: new Date(),
         },
       ])
       .returning();
