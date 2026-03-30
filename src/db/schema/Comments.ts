@@ -26,6 +26,7 @@ export const comments = sqliteTable("comments", {
   updatedAt: integer("updated_at", { mode: "timestamp" })
     .notNull()
     .default(sql`(unixepoch())`),
+  deletedAt: integer("deleted_at", { mode: "timestamp" }),
 });
 
 export type Comment = typeof comments.$inferSelect; // 조회용

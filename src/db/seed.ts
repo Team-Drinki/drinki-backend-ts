@@ -5,6 +5,9 @@ import {
   alcoholLocations,
   alcoholStyles,
   alcohols,
+  tastingNotes,
+  comments,
+  reactions,
 } from "./schema";
 
 async function seed() {
@@ -210,6 +213,21 @@ async function seed() {
         noteCnt: 35,
         content: "50% 이상 정미한 쌀로 만든 최고급 다이긴조 사케",
       },
+      {
+        userId: user.id,
+        categoryId: categories[0]!.id, // 위스키
+        styleId: styles[1]!.id, // 블렌디드
+        locationId: locations[0]!.id, // 스코틀랜드
+        name: "조니워커 블루",
+        imageUrl: "https://via.placeholder.com/300x400",
+        price: 250000,
+        proof: 40,
+        rating: 4.7,
+        wishCnt: 200,
+        viewCnt: 1800,
+        noteCnt: 30,
+        content: "조니워커 가문의 정점에 있는 프리미엄 블렌디드 위스키",
+      },
     ];
 
     const createdAlcohols = await db
@@ -217,6 +235,100 @@ async function seed() {
       .values(alcoholData)
       .returning();
     console.log("✅ Created", createdAlcohols.length, "alcohols");
+
+    // 6. 테이스팅 노트 생성
+    const notes = await db
+      .insert(tastingNotes)
+      .values([
+        {
+          userId: user.id,
+          alcoholId: createdAlcohols[0]!.id, // 글렌피딕
+          title: "글렌피딕 12년 첫 시음",
+          aromaNote: { 과일: { 사과: 4, 배: 3 }, 꽃: { 바닐라: 2 } },
+          palateNote: { 단맛: { 꿀: 4 }, 스파이시: { 후추: 2 } },
+          finishNote: { 길이: { 중간: 3 } },
+          images: ["https://via.placeholder.com/300x300"],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          userId: user.id,
+          alcoholId: createdAlcohols[1]!.id, // 맥캘란
+          title: "맥캘란 18년 역시 최고",
+          aromaNote: { 과일: { 말린과일: 5 }, 오크: { 쉐리: 5 } },
+          palateNote: { 바디감: { 묵직함: 4 }, 단맛: { 초콜릿: 3 } },
+          finishNote: { 길이: { 김: 5 } },
+          images: ["https://via.placeholder.com/300x300"],
+          createdAt: new Date(Date.now() - 86400000), // 어제
+          updatedAt: new Date(Date.now() - 86400000),
+        },
+        {
+          userId: user.id,
+          alcoholId: createdAlcohols[0]!.id, // 글렌피딕
+          title: "글렌피딕 데일리로 좋네요",
+          aromaNote: { 과일: { 청사과: 4 } },
+          palateNote: { 가벼움: { 깔끔함: 4 } },
+          finishNote: { 길이: { 짧음: 2 } },
+          images: [],
+          createdAt: new Date(Date.now() - 172800000), // 그저께
+          updatedAt: new Date(Date.now() - 172800000),
+        },
+        {
+          userId: user.id,
+          alcoholId: createdAlcohols[8]!.id, // 조니워커 블루
+          title: "조니워커 블루 - 영원한 클래식",
+          aromaNote: { 과일: { 오렌지: 4 }, 꽃: { 헤더: 3 }, 오크: { 쉐리: 4 } },
+          palateNote: { 단맛: { 꿀: 5, 바닐라: 4 }, 스파이시: { 정향: 2 } },
+          finishNote: { 길이: { 김: 5 } },
+          images: ["https://via.placeholder.com/300x300"],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ])
+      .returning();
+    console.log("✅ Created", notes.length, "tasting notes");
+
+    // 7. 댓글 생성
+    if (notes.length > 0) {
+      await db.insert(comments).values([
+        {
+          userId: user.id,
+          targetType: "tasting_note",
+          targetId: notes[0]!.id,
+          body: "저도 이거 좋아해요!",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          userId: user.id,
+          targetType: "tasting_note",
+          targetId: notes[1]!.id,
+          body: "가격이 좀 비싸긴 하죠 ㅠㅠ",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ]);
+      console.log("✅ Created comments");
+
+      // 8. 리액션 생성 (좋아요)
+      await db.insert(reactions).values([
+        {
+          userId: user.id,
+          targetType: "tasting_note",
+          targetId: notes[0]!.id,
+          reactionType: "like",
+          createdAt: new Date(),
+        },
+        {
+          userId: user.id,
+          targetType: "tasting_note",
+          targetId: notes[1]!.id,
+          reactionType: "like",
+          createdAt: new Date(),
+        },
+      ]);
+      console.log("✅ Created reactions");
+    }
 
     console.log("\n✨ Seeding completed successfully!");
     console.log("\n📌 Test user info:");
