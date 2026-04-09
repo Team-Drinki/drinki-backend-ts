@@ -5,7 +5,7 @@ import { TastingNoteModel } from './model'
 
 export abstract class TastingNote {
   static async createNote(userId: number, body: TastingNoteModel.CreateTastingNoteRequestType) {
-    const { title, alcoholId, createdTime, aroma_note, palate_note, finish_note, images } = body
+    const { title, content, alcoholId, createdTime, aroma_note, palate_note, finish_note, images } = body
 
     const createdAt = createdTime
 
@@ -13,6 +13,7 @@ export abstract class TastingNote {
       .insert(tastingNotes)
       .values({
         title,
+        content,
         userId: userId,
         alcoholId,
         aromaNote: aroma_note,
@@ -173,7 +174,7 @@ export abstract class TastingNote {
   }
 
   static async updateNote(id: number, userId: number, body: TastingNoteModel.UpdateTastingNoteRequestType) {
-    const { title, aroma_note, palate_note, finish_note, images } = body
+    const { title, content, aroma_note, palate_note, finish_note, images } = body
 
     const note = await db.select().from(tastingNotes).where(eq(tastingNotes.id, id)).get()
 
@@ -189,6 +190,7 @@ export abstract class TastingNote {
       .update(tastingNotes)
       .set({
         title,
+        content,
         aromaNote: aroma_note,
         palateNote: palate_note,
         finishNote: finish_note,
@@ -309,6 +311,7 @@ export abstract class TastingNote {
       .select({
         noteId: tastingNotes.id,
         title: tastingNotes.title,
+        content: tastingNotes.content,
         writerId: tastingNotes.userId,
         writerName: users.nickname,
         writerImage: users.profileImageUrl,
@@ -394,6 +397,7 @@ export abstract class TastingNote {
     return {
       noteId: note.noteId,
       title: note.title,
+      content: note.content,
       writerId: note.writerId,
       writerName: note.writerName,
       writerImage: note.writerImage,
