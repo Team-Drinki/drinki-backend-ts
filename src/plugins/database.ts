@@ -5,7 +5,7 @@ import { Database } from "bun:sqlite";
 import * as schema from "../db/schema";
 import * as relations from "../db/relations";
 
-const sqlite = new Database("sqlite.db");
+const sqlite = new Database("./src/db/drinki.db");
 
 export const db = drizzle(sqlite, {
   schema: {
