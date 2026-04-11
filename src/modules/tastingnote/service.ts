@@ -325,7 +325,7 @@ export abstract class TastingNote {
     const noteReactions = await db
       .select({
         type: reactions.reactionType,
-        count: sql<number>`count(*)`
+        count: sql<number>`count(*)::int`
       })
       .from(reactions)
       .where(
@@ -363,7 +363,7 @@ export abstract class TastingNote {
       const commentReactions = await db
         .select({
           type: reactions.reactionType,
-          count: sql<number>`count(*)`
+          count: sql<number>`count(*)::int`
         })
         .from(reactions)
         .where(
