@@ -50,9 +50,5 @@ jobs:
             --min-instances 1 \
             --max-instances 3 \
             --add-cloudsql-instances ${{ env.PROJECT_ID }}:${{ env.REGION }}:drinki-db \
-            --set-secrets "ACCESS_JWT_SECRET=access-jwt-secret:latest,\
-REFRESH_JWT_SECRET=refresh-jwt-secret:latest,\
-GOOGLE_CLIENT_ID=google-client-id:latest,\
-GOOGLE_CLIENT_SECRET=google-client-secret:latest,\
-DATABASE_URL=database-url:latest" \
+            --set-secrets ACCESS_JWT_SECRET=access-jwt-secret:latest,REFRESH_JWT_SECRET=refresh-jwt-secret:latest,GOOGLE_CLIENT_ID=google-client-id:latest,GOOGLE_CLIENT_SECRET=google-client-secret:latest,DATABASE_URL=database-url:latest \
             --set-env-vars "GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }},CLIENT_URL=${{ secrets.CLIENT_URL }}"
