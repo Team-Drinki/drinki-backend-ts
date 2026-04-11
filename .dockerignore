@@ -1,0 +1,5 @@
+node_modules
+src/db/drinki.db
+.env
+*.test.ts
+.git

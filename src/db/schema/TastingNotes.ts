@@ -1,38 +1,24 @@
-import {
-  sqliteTable,
-  text,
-  integer,
-  real,
-  blob,
-} from "drizzle-orm/sqlite-core";
-import { sql } from "drizzle-orm";
+import { pgTable, text, integer, jsonb, timestamp, serial } from "drizzle-orm/pg-core";
 
 import { users } from "./Users";
 import { alcohols } from "./Alcohols";
 
-export const tastingNotes = sqliteTable("tasting_notes", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const tastingNotes = pgTable("tasting_notes", {
+  id: serial("id").primaryKey(),
   alcoholId: integer("alcohol_id")
     .notNull()
     .references(() => alcohols.id),
   userId: integer("user_id")
     .notNull()
     .references(() => users.id),
-  title: text("title", { length: 255 }).notNull(),
+  title: text("title").notNull(),
   content: text("content"),
-  images: text("images", { mode: "json" })
-    .notNull()
-    .$type<string[]>()
-    .default(sql`('[]')`),
-  aromaNote: text("aroma_note", { mode: "json" }).notNull(), // JSON stored as text
-  palateNote: text("palate_note", { mode: "json" }).notNull(),
-  finishNote: text("finish_note", { mode: "json" }).notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .notNull()
-    .default(sql`(unixepoch())`),
-  updatedAt: integer("updated_at", { mode: "timestamp" })
-    .notNull()
-    .default(sql`(unixepoch())`),
+  images: jsonb("images").notNull().$type<string[]>().default([]),
+  aromaNote: jsonb("aroma_note").notNull(),
+  palateNote: jsonb("palate_note").notNull(),
+  finishNote: jsonb("finish_note").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 export type TastingNote = typeof tastingNotes.$inferSelect; // 조회용

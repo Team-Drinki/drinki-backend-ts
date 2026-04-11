@@ -83,24 +83,22 @@ export abstract class Wish {
 
   // 위시 여부 확인
   static async isWished(userId: number, alcoholId: number): Promise<boolean> {
-    const result = await db
+    const [result] = await db
       .select()
       .from(wishes)
       .where(and(eq(wishes.userId, userId), eq(wishes.alcoholId, alcoholId)))
-      .limit(1)
-      .get();
+      .limit(1);
 
     return !!result;
   }
 
   // 위시 추가
   static async addWish(userId: number, alcoholId: number): Promise<void> {
-    const existing = await db
+    const [existing] = await db
       .select()
       .from(wishes)
       .where(and(eq(wishes.userId, userId), eq(wishes.alcoholId, alcoholId)))
-      .limit(1)
-      .get();
+      .limit(1);
 
     if (existing) {
       throw new Error("Already wished");

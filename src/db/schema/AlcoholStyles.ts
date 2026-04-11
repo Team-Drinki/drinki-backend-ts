@@ -1,19 +1,13 @@
-import {
-  sqliteTable,
-  text,
-  integer,
-  real,
-  blob,
-} from "drizzle-orm/sqlite-core";
+import { pgTable, text, integer, serial } from "drizzle-orm/pg-core";
 
 import { alcoholCategories } from "./AlcoholCategories";
 
-export const alcoholStyles = sqliteTable("alcohol_styles", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const alcoholStyles = pgTable("alcohol_styles", {
+  id: serial("id").primaryKey(),
   categoryId: integer("category_id")
     .notNull()
     .references(() => alcoholCategories.id),
-  name: text("name", { length: 255 }).notNull(),
+  name: text("name").notNull(),
 });
 
 export type AlcoholStyle = typeof alcoholStyles.$inferSelect; // 조회용

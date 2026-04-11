@@ -55,7 +55,7 @@ const app = new Elysia()
         .use(tastingnote),
   )
   .get("/", () => "Drinki API v1.0.0")
-  .listen(8000);
+  .listen(Number(process.env.PORT) || 8000);
 
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,

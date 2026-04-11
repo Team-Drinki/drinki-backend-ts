@@ -1,19 +1,12 @@
-import {
-  sqliteTable,
-  text,
-  integer,
-  real,
-  blob,
-} from "drizzle-orm/sqlite-core";
-import { sql } from "drizzle-orm";
+import { pgTable, text, integer, real, timestamp, serial } from "drizzle-orm/pg-core";
 
-import { users } from "./Users.ts";
+import { users } from "./Users";
 import { alcoholStyles } from "./AlcoholStyles";
 import { alcoholLocations } from "./AlcoholLocations";
 import { alcoholCategories } from "./AlcoholCategories";
 
-export const alcoholRequests = sqliteTable("alcohol_requests", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const alcoholRequests = pgTable("alcohol_requests", {
+  id: serial("id").primaryKey(),
   userId: integer("user_id")
     .notNull()
     .references(() => users.id),
@@ -26,19 +19,15 @@ export const alcoholRequests = sqliteTable("alcohol_requests", {
   locationId: integer("location_id")
     .notNull()
     .references(() => alcoholLocations.id),
-  name: text("name", { length: 255 }).notNull(),
+  name: text("name").notNull(),
   imageUrl: text("image_url").notNull(),
   proof: real("proof").notNull(),
   status: text("status", { enum: ["approve", "pending", "reject"] as const })
     .notNull()
     .default("pending"),
   content: text("content").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .notNull()
-    .default(sql`(unixepoch())`),
-  updatedAt: integer("updated_at", { mode: "timestamp" })
-    .notNull()
-    .default(sql`(unixepoch())`),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 export type AlcoholRequest = typeof alcoholRequests.$inferSelect; // 조회용

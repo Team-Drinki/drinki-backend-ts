@@ -16,7 +16,7 @@ export abstract class User {
 
   // 내 프로필 조회
   static async getUserProfile(userId: number): Promise<UserProfile> {
-    const user = await db
+    const [user] = await db
       .select({
         id: users.id,
         socialType: users.socialType,
@@ -27,8 +27,7 @@ export abstract class User {
       })
       .from(users)
       .where(eq(users.id, userId))
-      .limit(1)
-      .get();
+      .limit(1);
 
     if (!user) {
       throw new Error("User not found");
@@ -52,7 +51,7 @@ export abstract class User {
 
   // 공개 프로필 조회
   static async getPublicProfile(userId: number): Promise<PublicProfile> {
-    const user = await db
+    const [user] = await db
       .select({
         id: users.id,
         nickname: users.nickname,
@@ -61,8 +60,7 @@ export abstract class User {
       })
       .from(users)
       .where(eq(users.id, userId))
-      .limit(1)
-      .get();
+      .limit(1);
 
     if (!user) {
       throw new Error("User not found");

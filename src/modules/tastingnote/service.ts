@@ -1,4 +1,4 @@
-import { eq, and, sql, like, desc, asc, count } from 'drizzle-orm'
+import { eq, and, sql, desc, count } from 'drizzle-orm'
 import { db } from '../../plugins/database'
 import { tastingNotes, users, reactions, comments, alcohols, alcoholCategories } from '../../db/schema'
 import { TastingNoteModel } from './model'
@@ -9,7 +9,7 @@ export abstract class TastingNote {
 
     const createdAt = createdTime
 
-    const result = await db
+    const [result] = await db
       .insert(tastingNotes)
       .values({
         title,
@@ -24,9 +24,8 @@ export abstract class TastingNote {
         updatedAt: new Date()
       })
       .returning({ id: tastingNotes.id })
-      .get()
 
-    return { success: true, id: result.id }
+    return { success: true, id: result!.id }
   }
 
   static async getNotes(params: TastingNoteModel.SearchParamsType) {
@@ -71,21 +70,20 @@ export abstract class TastingNote {
       baseQuery.orderBy(desc(tastingNotes.createdAt))
     }
 
-    const notes = await baseQuery.all()
+    const notes = await baseQuery
 
-    const totalCountQuery = await db
+    const [totalCountQuery] = await db
       .select({ count: count() })
       .from(tastingNotes)
       .innerJoin(alcohols, eq(tastingNotes.alcoholId, alcohols.id))
       .innerJoin(alcoholCategories, eq(alcohols.categoryId, alcoholCategories.id))
       .where(and(...conditions))
-      .get()
 
     const totalCount = totalCountQuery?.count || 0
     const totalPages = Math.ceil(totalCount / size)
 
     return {
-      notes: notes.map(note => {
+      notes: notes.map((note: typeof notes[number]) => {
         const imageList = (note.images as string[]) || []
         return {
           ...note,
@@ -104,7 +102,6 @@ export abstract class TastingNote {
   }
 
   static async getHotNotes() {
-    // 서브쿼리 사용
     const notes = await db
       .select({
         noteId: tastingNotes.id,
@@ -125,10 +122,9 @@ export abstract class TastingNote {
       .innerJoin(users, eq(tastingNotes.userId, users.id))
       .orderBy(desc(sql`(SELECT count(*) FROM ${reactions} WHERE ${reactions.targetType} = 'tasting_note' AND ${reactions.targetId} = ${tastingNotes.id} AND ${reactions.reactionType} = 'like')`), desc(tastingNotes.createdAt))
       .limit(5)
-      .all()
 
     return {
-      notes: notes.map(note => {
+      notes: notes.map((note: typeof notes[number]) => {
         const imageList = (note.images as string[]) || []
         return {
           ...note,
@@ -160,10 +156,9 @@ export abstract class TastingNote {
       .where(eq(tastingNotes.alcoholId, alcoholId))
       .orderBy(desc(sql`(SELECT count(*) FROM ${reactions} WHERE ${reactions.targetType} = 'tasting_note' AND ${reactions.targetId} = ${tastingNotes.id} AND ${reactions.reactionType} = 'like')`), desc(tastingNotes.createdAt))
       .limit(3)
-      .all()
 
     return {
-      notes: notes.map(note => {
+      notes: notes.map((note: typeof notes[number]) => {
         const imageList = (note.images as string[]) || []
         return {
           ...note,
@@ -176,7 +171,7 @@ export abstract class TastingNote {
   static async updateNote(id: number, userId: number, body: TastingNoteModel.UpdateTastingNoteRequestType) {
     const { title, content, aroma_note, palate_note, finish_note, images } = body
 
-    const note = await db.select().from(tastingNotes).where(eq(tastingNotes.id, id)).get()
+    const [note] = await db.select().from(tastingNotes).where(eq(tastingNotes.id, id)).limit(1)
 
     if (!note) {
       return { success: false, error: '존재하지 않는 테이스팅 노트입니다.', status: 404 }
@@ -198,13 +193,12 @@ export abstract class TastingNote {
         updatedAt: new Date()
       })
       .where(eq(tastingNotes.id, id))
-      .run()
 
     return { success: true, id }
   }
 
   static async deleteNote(id: number, userId: number) {
-    const note = await db.select().from(tastingNotes).where(eq(tastingNotes.id, id)).get()
+    const [note] = await db.select().from(tastingNotes).where(eq(tastingNotes.id, id)).limit(1)
 
     if (!note) {
       return { success: false, error: '존재하지 않는 테이스팅 노트입니다.', status: 404 }
@@ -214,7 +208,7 @@ export abstract class TastingNote {
       return { success: false, error: '삭제 권한이 없습니다.', status: 403 }
     }
 
-    await db.delete(tastingNotes).where(eq(tastingNotes.id, id)).run()
+    await db.delete(tastingNotes).where(eq(tastingNotes.id, id))
 
     return { success: true, id }
   }
@@ -222,7 +216,7 @@ export abstract class TastingNote {
   static async createComment(noteId: number, userId: number, body: TastingNoteModel.CreateCommentRequestType) {
     const { content, parentId, createdTime } = body
 
-    const note = await db.select().from(tastingNotes).where(eq(tastingNotes.id, noteId)).get()
+    const [note] = await db.select().from(tastingNotes).where(eq(tastingNotes.id, noteId)).limit(1)
 
     if (!note) {
       return { success: false, error: '존재하지 않는 테이스팅 노트입니다.', status: 404 }
@@ -230,7 +224,7 @@ export abstract class TastingNote {
 
     const createdAt = createdTime
 
-    const result = await db
+    const [result] = await db
       .insert(comments)
       .values({
         userId,
@@ -242,15 +236,14 @@ export abstract class TastingNote {
         updatedAt: new Date()
       })
       .returning({ id: comments.id })
-      .get()
 
-    return { success: true, id: result.id }
+    return { success: true, id: result!.id }
   }
 
   static async updateComment(noteId: number, commentId: number, userId: number, body: TastingNoteModel.UpdateCommentRequestType) {
     const { content } = body
 
-    const comment = await db.select().from(comments).where(eq(comments.id, commentId)).get()
+    const [comment] = await db.select().from(comments).where(eq(comments.id, commentId)).limit(1)
 
     if (!comment) {
       return { success: false, error: '존재하지 않는 댓글입니다.', status: 404 }
@@ -271,13 +264,12 @@ export abstract class TastingNote {
         updatedAt: new Date()
       })
       .where(eq(comments.id, commentId))
-      .run()
 
     return { success: true, id: commentId }
   }
 
   static async deleteComment(noteId: number, commentId: number, userId: number) {
-    const comment = await db.select().from(comments).where(eq(comments.id, commentId)).get()
+    const [comment] = await db.select().from(comments).where(eq(comments.id, commentId)).limit(1)
 
     if (!comment) {
       return { success: false, error: '존재하지 않는 댓글입니다.', status: 404 }
@@ -301,13 +293,12 @@ export abstract class TastingNote {
         deletedAt: new Date()
       })
       .where(eq(comments.id, commentId))
-      .run()
 
     return { success: true, id: commentId }
   }
 
   static async getNoteById(id: number) {
-    const note = await db
+    const [note] = await db
       .select({
         noteId: tastingNotes.id,
         title: tastingNotes.title,
@@ -324,7 +315,7 @@ export abstract class TastingNote {
       .from(tastingNotes)
       .innerJoin(users, eq(tastingNotes.userId, users.id))
       .where(eq(tastingNotes.id, id))
-      .get()
+      .limit(1)
 
     if (!note) {
       return null
@@ -344,10 +335,9 @@ export abstract class TastingNote {
         )
       )
       .groupBy(reactions.reactionType)
-      .all()
 
-    const likeCount = noteReactions.find(r => r.type === 'like')?.count || 0
-    const unlikeCount = noteReactions.find(r => r.type === 'unlike')?.count || 0
+    const likeCount = noteReactions.find((r: typeof noteReactions[number]) => r.type === 'like')?.count || 0
+    const unlikeCount = noteReactions.find((r: typeof noteReactions[number]) => r.type === 'unlike')?.count || 0
 
     const noteComments = await db
       .select({
@@ -367,10 +357,9 @@ export abstract class TastingNote {
           eq(comments.targetType, 'tasting_note')
         )
       )
-      .all()
 
     // TODO : n+1 문제 있는지 확인
-    const commentsWithReactions = await Promise.all(noteComments.map(async (comment) => {
+    const commentsWithReactions = await Promise.all(noteComments.map(async (comment: typeof noteComments[number]) => {
       const commentReactions = await db
         .select({
           type: reactions.reactionType,
@@ -384,13 +373,12 @@ export abstract class TastingNote {
           )
         )
         .groupBy(reactions.reactionType)
-        .all()
 
       return {
         ...comment,
         content: comment.deletedAt ? '삭제된 댓글입니다.' : comment.content,
-        like: commentReactions.find(r => r.type === 'like')?.count || 0,
-        unlike: commentReactions.find(r => r.type === 'unlike')?.count || 0
+        like: commentReactions.find((r: typeof commentReactions[number]) => r.type === 'like')?.count || 0,
+        unlike: commentReactions.find((r: typeof commentReactions[number]) => r.type === 'unlike')?.count || 0
       }
     }))
 

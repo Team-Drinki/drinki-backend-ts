@@ -1,6 +1,5 @@
 # dependencies (bun install)
 node_modules
-drizzle
 sqlite.db
 
 # output

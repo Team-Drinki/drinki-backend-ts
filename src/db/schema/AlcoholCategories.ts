@@ -1,14 +1,8 @@
-import {
-  sqliteTable,
-  text,
-  integer,
-  real,
-  blob,
-} from "drizzle-orm/sqlite-core";
+import { pgTable, text, serial } from "drizzle-orm/pg-core";
 
-export const alcoholCategories = sqliteTable("alcohol_categories", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  name: text("name", { length: 255 }).notNull(),
+export const alcoholCategories = pgTable("alcohol_categories", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
 });
 
 export type AlcoholCategory = typeof alcoholCategories.$inferSelect; // 조회용

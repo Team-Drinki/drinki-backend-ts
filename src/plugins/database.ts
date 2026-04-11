@@ -1,13 +1,13 @@
 import { Elysia } from "elysia";
-import { drizzle } from "drizzle-orm/bun-sqlite";
-import { Database } from "bun:sqlite";
+import { drizzle } from "drizzle-orm/node-postgres";
+import pg from "pg";
 
 import * as schema from "../db/schema";
 import * as relations from "../db/relations";
 
-const sqlite = new Database("./src/db/drinki.db");
+const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 
-export const db = drizzle(sqlite, {
+export const db = drizzle(pool, {
   schema: {
     ...schema,
     ...relations,

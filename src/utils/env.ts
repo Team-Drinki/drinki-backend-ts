@@ -15,4 +15,5 @@ export const config = {
   GOOGLE_CLIENT_SECRET: getEnv("GOOGLE_CLIENT_SECRET"),
   GOOGLE_REDIRECT_URI: getEnv("GOOGLE_REDIRECT_URI"),
   CLIENT_URL: getEnv("CLIENT_URL"),
+  DATABASE_URL: getEnv("DATABASE_URL"),
 } as const;

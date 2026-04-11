@@ -1,16 +1,9 @@
-import {
-  sqliteTable,
-  text,
-  integer,
-  real,
-  blob,
-} from "drizzle-orm/sqlite-core";
-import { sql } from "drizzle-orm";
+import { pgTable, text, integer, timestamp, serial } from "drizzle-orm/pg-core";
 
 import { users } from "./Users";
 
-export const comments = sqliteTable("comments", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const comments = pgTable("comments", {
+  id: serial("id").primaryKey(),
   userId: integer("user_id")
     .notNull()
     .references(() => users.id),
@@ -20,13 +13,9 @@ export const comments = sqliteTable("comments", {
   targetId: integer("target_id").notNull(),
   parentId: integer("parent_id").references((): any => comments.id),
   body: text("body").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .notNull()
-    .default(sql`(unixepoch())`),
-  updatedAt: integer("updated_at", { mode: "timestamp" })
-    .notNull()
-    .default(sql`(unixepoch())`),
-  deletedAt: integer("deleted_at", { mode: "timestamp" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  deletedAt: timestamp("deleted_at"),
 });
 
 export type Comment = typeof comments.$inferSelect; // 조회용

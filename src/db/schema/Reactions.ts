@@ -1,10 +1,9 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
-import { sql } from "drizzle-orm";
+import { pgTable, text, integer, timestamp, serial } from "drizzle-orm/pg-core";
 
 import { users } from "./Users";
 
-export const reactions = sqliteTable("reactions", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const reactions = pgTable("reactions", {
+  id: serial("id").primaryKey(),
   userId: integer("user_id")
     .notNull()
     .references(() => users.id),
@@ -13,9 +12,7 @@ export const reactions = sqliteTable("reactions", {
     enum: ["post", "comment", "alcohol", "tasting_note"],
   }).notNull(),
   reactionType: text("reaction_type", { enum: ["like", "unlike"] }).notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .notNull()
-    .default(sql`(unixepoch())`),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 export type Reaction = typeof reactions.$inferSelect; // 조회용

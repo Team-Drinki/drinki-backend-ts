@@ -1,29 +1,18 @@
-import {
-  sqliteTable,
-  text,
-  integer,
-  real,
-  blob,
-} from "drizzle-orm/sqlite-core";
-import { sql } from "drizzle-orm";
+import { pgTable, text, integer, boolean, timestamp, serial } from "drizzle-orm/pg-core";
 
 import { users } from "./Users";
 
-export const inquiries = sqliteTable("inquiries", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const inquiries = pgTable("inquiries", {
+  id: serial("id").primaryKey(),
   userId: integer("user_id")
     .notNull()
     .references(() => users.id),
-  isSecret: integer("is_secret", { mode: "boolean" }).notNull().default(false),
-  title: text("title", { length: 100 }).notNull(),
+  isSecret: boolean("is_secret").notNull().default(false),
+  title: text("title").notNull(),
   content: text("content").notNull(),
   answer: text("answer"),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .notNull()
-    .default(sql`(unixepoch())`),
-  updatedAt: integer("updated_at", { mode: "timestamp" })
-    .notNull()
-    .default(sql`(unixepoch())`),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 export type Inquiry = typeof inquiries.$inferSelect; // 조회용

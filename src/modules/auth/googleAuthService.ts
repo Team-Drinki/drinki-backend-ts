@@ -59,14 +59,13 @@ export class GoogleAuthService {
     name: string;
     picture: string;
   }) {
-    const user = await db
+    const [user] = await db
       .select()
       .from(users)
       .where(
         and(eq(users.socialType, "google"), eq(users.socialId, googleUser.sub)),
       )
-      .limit(1)
-      .get();
+      .limit(1);
 
     if (user) {
       return user;

@@ -2,10 +2,10 @@
 import { eq, desc, asc, and, sql } from 'drizzle-orm'
 import { db } from '../../plugins/database'
 import { posts, comments, reactions, users } from '../../db/schema'
-import type { 
-  PostListRequest, 
-  PostItem, 
-  PostListResponse, 
+import type {
+  PostListRequest,
+  PostItem,
+  PostListResponse,
   CommentItem,
   PostCreateRequest,
   PostUpdateRequest,
@@ -15,7 +15,7 @@ import type {
 
 export abstract class Post {
   // ===== 게시글 관련 =====
-  
+
   static async getList(params: PostListRequest, userId?: number): Promise<PostListResponse> {
     const { category, page = 1, size = 10, sort = 'createdAt' } = params
     const offset = (page - 1) * size
@@ -34,7 +34,7 @@ export abstract class Post {
       .select({ count: sql<number>`count(*)` })
       .from(posts)
       .where(conditions.length > 0 ? and(...conditions) : undefined)
-    
+
     const total = Number(totalResult[0]?.count || 0)
     const totalPages = Math.ceil(total / size)
 
@@ -50,9 +50,9 @@ export abstract class Post {
         viewCnt: sql<number>`COALESCE((SELECT COUNT(*) FROM views WHERE target_type = 'post' AND target_id = ${posts.id}), 0)`,
         likeCnt: sql<number>`COALESCE((SELECT COUNT(*) FROM reactions WHERE target_type = 'post' AND target_id = ${posts.id} AND reaction_type = 'like'), 0)`,
         commentCnt: sql<number>`COALESCE((SELECT COUNT(*) FROM comments WHERE target_type = 'post' AND target_id = ${posts.id}), 0)`,
-        isLiked: userId 
+        isLiked: userId
           ? sql<boolean>`EXISTS(SELECT 1 FROM reactions WHERE target_type = 'post' AND target_id = ${posts.id} AND user_id = ${userId} AND reaction_type = 'like')`
-          : sql<boolean>`0`
+          : sql<boolean>`false`
       })
       .from(posts)
       .innerJoin(users, eq(posts.userId, users.id))
@@ -89,7 +89,7 @@ export abstract class Post {
   }
 
   static async findById(postId: number, userId?: number): Promise<PostItem> {
-    const result = await db
+    const [result] = await db
       .select({
         post: posts,
         author: {
@@ -100,15 +100,14 @@ export abstract class Post {
         viewCnt: sql<number>`COALESCE((SELECT COUNT(*) FROM views WHERE target_type = 'post' AND target_id = ${posts.id}), 0)`,
         likeCnt: sql<number>`COALESCE((SELECT COUNT(*) FROM reactions WHERE target_type = 'post' AND target_id = ${posts.id} AND reaction_type = 'like'), 0)`,
         commentCnt: sql<number>`COALESCE((SELECT COUNT(*) FROM comments WHERE target_type = 'post' AND target_id = ${posts.id}), 0)`,
-        isLiked: userId 
+        isLiked: userId
           ? sql<boolean>`EXISTS(SELECT 1 FROM reactions WHERE target_type = 'post' AND target_id = ${posts.id} AND user_id = ${userId} AND reaction_type = 'like')`
-          : sql<boolean>`0`
+          : sql<boolean>`false`
       })
       .from(posts)
       .innerJoin(users, eq(posts.userId, users.id))
       .where(eq(posts.id, postId))
       .limit(1)
-      .get()
 
     if (!result) {
       throw new Error('Post not found')
@@ -132,7 +131,7 @@ export abstract class Post {
   }
 
   static async create(userId: number, data: PostCreateRequest) {
-    const result = await db
+    const [result] = await db
       .insert(posts)
       .values({
         userId,
@@ -142,19 +141,17 @@ export abstract class Post {
         body: data.body
       })
       .returning()
-      .get()
 
     return result
   }
 
   static async update(postId: number, userId: number, data: PostUpdateRequest) {
     // 권한 확인
-    const post = await db
+    const [post] = await db
       .select()
       .from(posts)
       .where(eq(posts.id, postId))
       .limit(1)
-      .get()
 
     if (!post) {
       throw new Error('Post not found')
@@ -164,7 +161,7 @@ export abstract class Post {
       throw new Error('Forbidden: Not the post owner')
     }
 
-    const result = await db
+    const [result] = await db
       .update(posts)
       .set({
         ...data,
@@ -172,19 +169,17 @@ export abstract class Post {
       })
       .where(eq(posts.id, postId))
       .returning()
-      .get()
 
     return result
   }
 
   static async delete(postId: number, userId: number): Promise<void> {
     // 권한 확인
-    const post = await db
+    const [post] = await db
       .select()
       .from(posts)
       .where(eq(posts.id, postId))
       .limit(1)
-      .get()
 
     if (!post) {
       throw new Error('Post not found')
@@ -211,9 +206,9 @@ export abstract class Post {
           profileImageUrl: users.profileImageUrl
         },
         likeCnt: sql<number>`COALESCE((SELECT COUNT(*) FROM reactions WHERE target_type = 'comment' AND target_id = ${comments.id} AND reaction_type = 'like'), 0)`,
-        isLiked: userId 
+        isLiked: userId
           ? sql<boolean>`EXISTS(SELECT 1 FROM reactions WHERE target_type = 'comment' AND target_id = ${comments.id} AND user_id = ${userId} AND reaction_type = 'like')`
-          : sql<boolean>`0`
+          : sql<boolean>`false`
       })
       .from(comments)
       .innerJoin(users, eq(comments.userId, users.id))
@@ -258,7 +253,7 @@ export abstract class Post {
   }
 
   static async createComment(postId: number, userId: number, data: CommentCreateRequest) {
-    const result = await db
+    const [result] = await db
       .insert(comments)
       .values({
         userId,
@@ -268,19 +263,17 @@ export abstract class Post {
         parentId: data.parentId
       })
       .returning()
-      .get()
 
     return result
   }
 
   static async updateComment(commentId: number, userId: number, data: CommentUpdateRequest) {
     // 권한 확인
-    const comment = await db
+    const [comment] = await db
       .select()
       .from(comments)
       .where(eq(comments.id, commentId))
       .limit(1)
-      .get()
 
     if (!comment) {
       throw new Error('Comment not found')
@@ -290,7 +283,7 @@ export abstract class Post {
       throw new Error('Forbidden: Not the comment owner')
     }
 
-    const result = await db
+    const [result] = await db
       .update(comments)
       .set({
         body: data.body,
@@ -298,19 +291,17 @@ export abstract class Post {
       })
       .where(eq(comments.id, commentId))
       .returning()
-      .get()
 
     return result
   }
 
   static async deleteComment(commentId: number, userId: number): Promise<void> {
     // 권한 확인
-    const comment = await db
+    const [comment] = await db
       .select()
       .from(comments)
       .where(eq(comments.id, commentId))
       .limit(1)
-      .get()
 
     if (!comment) {
       throw new Error('Comment not found')
@@ -329,7 +320,7 @@ export abstract class Post {
 
   static async toggleLike(userId: number, targetType: 'post' | 'comment', targetId: number) {
     // 기존 좋아요 확인
-    const existing = await db
+    const [existing] = await db
       .select()
       .from(reactions)
       .where(and(
@@ -339,14 +330,13 @@ export abstract class Post {
         eq(reactions.reactionType, 'like')
       ))
       .limit(1)
-      .get()
 
     if (existing) {
       // 좋아요 취소
       await db
         .delete(reactions)
         .where(eq(reactions.id, existing.id))
-      
+
       return { isLiked: false }
     } else {
       // 좋아요 추가
@@ -358,7 +348,7 @@ export abstract class Post {
           targetId,
           reactionType: 'like'
         })
-      
+
       return { isLiked: true }
     }
   }
@@ -372,7 +362,7 @@ export abstract class Post {
       'likeCnt': desc(sql`like_cnt`),
       'commentCnt': desc(sql`comment_cnt`)
     }
-    
+
     return sortMap[sort] || desc(posts.createdAt)
   }
 }
