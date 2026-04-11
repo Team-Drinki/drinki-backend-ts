@@ -50,9 +50,9 @@ export abstract class TastingNote {
         alcoholName: alcohols.name,
         images: tastingNotes.images,
         writer: users.nickname,
-        commentNum: sql<number>`(SELECT count(*) FROM ${comments} WHERE ${comments.targetType} = 'tasting_note' AND ${comments.targetId} = ${tastingNotes.id})`,
-        like: sql<number>`(SELECT count(*) FROM ${reactions} WHERE ${reactions.targetType} = 'tasting_note' AND ${reactions.targetId} = ${tastingNotes.id} AND ${reactions.reactionType} = 'like')`,
-        unlike: sql<number>`(SELECT count(*) FROM ${reactions} WHERE ${reactions.targetType} = 'tasting_note' AND ${reactions.targetId} = ${tastingNotes.id} AND ${reactions.reactionType} = 'unlike')`,
+        commentNum: sql<number>`(SELECT count(*) FROM ${comments} WHERE ${comments.targetType} = 'tasting_note' AND ${comments.targetId} = ${tastingNotes.id})::int`,
+        like: sql<number>`(SELECT count(*) FROM ${reactions} WHERE ${reactions.targetType} = 'tasting_note' AND ${reactions.targetId} = ${tastingNotes.id} AND ${reactions.reactionType} = 'like')::int`,
+        unlike: sql<number>`(SELECT count(*) FROM ${reactions} WHERE ${reactions.targetType} = 'tasting_note' AND ${reactions.targetId} = ${tastingNotes.id} AND ${reactions.reactionType} = 'unlike')::int`,
         viewer: sql<number>`0`, // TODO : 구현
         createdTime: tastingNotes.createdAt,
       })
@@ -110,9 +110,9 @@ export abstract class TastingNote {
         alcoholName: alcohols.name,
         images: tastingNotes.images,
         writer: users.nickname,
-        commentNum: sql<number>`(SELECT count(*) FROM ${comments} WHERE ${comments.targetType} = 'tasting_note' AND ${comments.targetId} = ${tastingNotes.id})`,
-        like: sql<number>`(SELECT count(*) FROM ${reactions} WHERE ${reactions.targetType} = 'tasting_note' AND ${reactions.targetId} = ${tastingNotes.id} AND ${reactions.reactionType} = 'like')`,
-        unlike: sql<number>`(SELECT count(*) FROM ${reactions} WHERE ${reactions.targetType} = 'tasting_note' AND ${reactions.targetId} = ${tastingNotes.id} AND ${reactions.reactionType} = 'unlike')`,
+        commentNum: sql<number>`(SELECT count(*) FROM ${comments} WHERE ${comments.targetType} = 'tasting_note' AND ${comments.targetId} = ${tastingNotes.id})::int`,
+        like: sql<number>`(SELECT count(*) FROM ${reactions} WHERE ${reactions.targetType} = 'tasting_note' AND ${reactions.targetId} = ${tastingNotes.id} AND ${reactions.reactionType} = 'like')::int`,
+        unlike: sql<number>`(SELECT count(*) FROM ${reactions} WHERE ${reactions.targetType} = 'tasting_note' AND ${reactions.targetId} = ${tastingNotes.id} AND ${reactions.reactionType} = 'unlike')::int`,
         viewer: sql<number>`0`,
         createdTime: tastingNotes.createdAt,
       })
@@ -143,9 +143,9 @@ export abstract class TastingNote {
         alcoholName: alcohols.name,
         images: tastingNotes.images,
         writer: users.nickname,
-        commentNum: sql<number>`(SELECT count(*) FROM ${comments} WHERE ${comments.targetType} = 'tasting_note' AND ${comments.targetId} = ${tastingNotes.id})`,
-        like: sql<number>`(SELECT count(*) FROM ${reactions} WHERE ${reactions.targetType} = 'tasting_note' AND ${reactions.targetId} = ${tastingNotes.id} AND ${reactions.reactionType} = 'like')`,
-        unlike: sql<number>`(SELECT count(*) FROM ${reactions} WHERE ${reactions.targetType} = 'tasting_note' AND ${reactions.targetId} = ${tastingNotes.id} AND ${reactions.reactionType} = 'unlike')`,
+        commentNum: sql<number>`(SELECT count(*) FROM ${comments} WHERE ${comments.targetType} = 'tasting_note' AND ${comments.targetId} = ${tastingNotes.id})::int`,
+        like: sql<number>`(SELECT count(*) FROM ${reactions} WHERE ${reactions.targetType} = 'tasting_note' AND ${reactions.targetId} = ${tastingNotes.id} AND ${reactions.reactionType} = 'like')::int`,
+        unlike: sql<number>`(SELECT count(*) FROM ${reactions} WHERE ${reactions.targetType} = 'tasting_note' AND ${reactions.targetId} = ${tastingNotes.id} AND ${reactions.reactionType} = 'unlike')::int`,
         viewer: sql<number>`0`,
         createdTime: tastingNotes.createdAt,
       })
