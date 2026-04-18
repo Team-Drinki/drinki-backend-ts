@@ -461,6 +461,7 @@ export abstract class TastingNote {
       .select({
         commentId: comments.id,
         parentId: comments.parentId,
+        writerId: comments.userId,
         writerNickName: users.nickname,
         writerImage: users.profileImageUrl,
         content: comments.body,

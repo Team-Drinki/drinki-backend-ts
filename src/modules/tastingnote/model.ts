@@ -8,6 +8,7 @@ export namespace TastingNoteModel {
     export const Comment = t.Object({
         commentId: t.Number(),
         parentId: t.Nullable(t.Number()),
+        writerId: t.Number(),
         writerNickName: t.String(),
         writerImage: t.Nullable(t.String()),
         content: t.String(),
