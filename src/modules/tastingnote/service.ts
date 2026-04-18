@@ -306,6 +306,114 @@ export abstract class TastingNote {
     return { success: true, id: commentId }
   }
 
+  static async toggleNoteLike(noteId: number, userId: number) {
+    const note = await db.select().from(tastingNotes).where(eq(tastingNotes.id, noteId)).get()
+
+    if (!note) {
+      return { success: false, error: '존재하지 않는 테이스팅 노트입니다.', status: 404 }
+    }
+
+    const existing = await db
+      .select()
+      .from(reactions)
+      .where(
+        and(
+          eq(reactions.userId, userId),
+          eq(reactions.targetId, noteId),
+          eq(reactions.targetType, 'tasting_note'),
+          eq(reactions.reactionType, 'like')
+        )
+      )
+      .get()
+
+    if (existing) {
+      await db.delete(reactions).where(eq(reactions.id, existing.id)).run()
+    } else {
+      await db.insert(reactions).values({
+        userId,
+        targetId: noteId,
+        targetType: 'tasting_note',
+        reactionType: 'like'
+      }).run()
+    }
+
+    const likeCountRow = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(reactions)
+      .where(
+        and(
+          eq(reactions.targetId, noteId),
+          eq(reactions.targetType, 'tasting_note'),
+          eq(reactions.reactionType, 'like')
+        )
+      )
+      .get()
+
+    return {
+      success: true,
+      liked: !existing,
+      likeCount: likeCountRow?.count || 0
+    }
+  }
+
+  static async toggleCommentLike(noteId: number, commentId: number, userId: number) {
+    const comment = await db.select().from(comments).where(eq(comments.id, commentId)).get()
+
+    if (!comment) {
+      return { success: false, error: '존재하지 않는 댓글입니다.', status: 404 }
+    }
+
+    if (comment.targetId !== noteId || comment.targetType !== 'tasting_note') {
+      return { success: false, error: '잘못된 요청입니다.', status: 400 }
+    }
+
+    if (comment.deletedAt) {
+      return { success: false, error: '삭제된 댓글입니다.', status: 400 }
+    }
+
+    const existing = await db
+      .select()
+      .from(reactions)
+      .where(
+        and(
+          eq(reactions.userId, userId),
+          eq(reactions.targetId, commentId),
+          eq(reactions.targetType, 'comment'),
+          eq(reactions.reactionType, 'like')
+        )
+      )
+      .get()
+
+    if (existing) {
+      await db.delete(reactions).where(eq(reactions.id, existing.id)).run()
+    } else {
+      await db.insert(reactions).values({
+        userId,
+        targetId: commentId,
+        targetType: 'comment',
+        reactionType: 'like'
+      }).run()
+    }
+
+    const likeCountRow = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(reactions)
+      .where(
+        and(
+          eq(reactions.targetId, commentId),
+          eq(reactions.targetType, 'comment'),
+          eq(reactions.reactionType, 'like')
+        )
+      )
+      .get()
+
+    return {
+      success: true,
+      liked: !existing,
+      likeCount: likeCountRow?.count || 0
+    }
+  }
+
   static async getNoteById(id: number) {
     const note = await db
       .select({

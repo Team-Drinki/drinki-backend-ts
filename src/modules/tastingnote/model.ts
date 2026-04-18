@@ -115,10 +115,16 @@ export namespace TastingNoteModel {
         notes: t.Array(TastingNoteList)
     })
 
+    export const LikeToggleResponse = t.Object({
+        liked: t.Boolean(),
+        likeCount: t.Number()
+    })
+
     export type CreateTastingNoteRequestType = Static<typeof CreateTastingNoteRequest>
     export type UpdateTastingNoteRequestType = Static<typeof UpdateTastingNoteRequest>
     export type CreateCommentRequestType = Static<typeof CreateCommentRequest>
     export type UpdateCommentRequestType = Static<typeof UpdateCommentRequest>
     export type HotTastingNoteListResponseType = Static<typeof HotTastingNoteListResponse>
     export type BestTastingNoteListResponseType = Static<typeof BestTastingNoteListResponse>
+    export type LikeToggleResponseType = Static<typeof LikeToggleResponse>
 }
