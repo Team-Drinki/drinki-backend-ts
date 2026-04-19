@@ -326,6 +326,8 @@ export abstract class TastingNote {
         writerId: tastingNotes.userId,
         writerName: users.nickname,
         writerImage: users.profileImageUrl,
+        alcoholName: sql<string>`COALESCE(${alcohols.name}, ${tastingNotes.customAlcoholName}, '')`,
+        alcoholCategory: sql<string>`COALESCE(${alcoholCategories.name}, ${tastingNotes.customAlcoholCategory}, '')`,
         createdTime: tastingNotes.createdAt,
         aromaNote: tastingNotes.aromaNote,
         palateNote: tastingNotes.palateNote,
@@ -334,6 +336,8 @@ export abstract class TastingNote {
       })
       .from(tastingNotes)
       .innerJoin(users, eq(tastingNotes.userId, users.id))
+      .leftJoin(alcohols, eq(tastingNotes.alcoholId, alcohols.id))
+      .leftJoin(alcoholCategories, eq(alcohols.categoryId, alcoholCategories.id))
       .where(eq(tastingNotes.id, id))
       .get()
 
