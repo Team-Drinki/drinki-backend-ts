@@ -22,6 +22,8 @@ export namespace TastingNoteModel {
         writerId: t.Number(),
         writerName: t.String(),
         writerImage: t.Nullable(t.String()),
+        alcoholName: t.String(),
+        alcoholCategory: t.String(),
         like: t.Number(),
         unlike: t.Number(),
         viewer: t.Number(),

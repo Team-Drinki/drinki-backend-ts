@@ -415,6 +415,8 @@ export abstract class TastingNote {
       writerId: note.writerId,
       writerName: note.writerName,
       writerImage: note.writerImage,
+      alcoholName: note.alcoholName,
+      alcoholCategory: note.alcoholCategory,
       like: likeCount,
       unlike: unlikeCount,
       viewer: 0, // TODO : viewer count 구현
