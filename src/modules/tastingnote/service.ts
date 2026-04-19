@@ -418,6 +418,7 @@ export abstract class TastingNote {
     const note = await db
       .select({
         noteId: tastingNotes.id,
+        alcoholId: tastingNotes.alcoholId,
         title: tastingNotes.title,
         content: tastingNotes.content,
         writerId: tastingNotes.userId,
@@ -505,6 +506,7 @@ export abstract class TastingNote {
 
     return {
       noteId: note.noteId,
+      alcoholId: note.alcoholId,
       title: note.title,
       content: note.content,
       writerId: note.writerId,
