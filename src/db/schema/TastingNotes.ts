@@ -32,6 +32,7 @@ export const tastingNotes = sqliteTable("tasting_notes", {
   updatedAt: integer("updated_at", { mode: "timestamp" })
     .notNull()
     .default(sql`(unixepoch())`),
+  viewCount: integer("view_count").notNull().default(0),
 });
 
 export type TastingNote = typeof tastingNotes.$inferSelect; // 조회용
