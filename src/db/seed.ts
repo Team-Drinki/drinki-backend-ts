@@ -42,6 +42,7 @@ async function seed() {
         { name: "소주" },
         { name: "막걸리" },
         { name: "사케" },
+        { name: "기타" },
       ])
       .returning();
 

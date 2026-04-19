@@ -81,7 +81,7 @@ export namespace TastingNoteModel {
         alcoholId: t.Optional(t.Numeric()),
         customAlcohol: t.Optional(t.Object({
             name: t.String({ minLength: 1 }),
-            category: t.Optional(t.String())
+            category: t.String({ minLength: 1 })
         })),
         createdTime: t.Date(),
         aroma_note: RatingMap,
