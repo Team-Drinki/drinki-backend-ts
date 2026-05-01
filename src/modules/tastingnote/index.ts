@@ -216,6 +216,9 @@ export const tastingnote = new Elysia({
     detail: {
       summary: 'Toggle tasting note like',
       tags: ['TastingNote']
+    },
+    response: {
+      200: TastingNoteModel.LikeToggleResponse
     }
   })
   .post('/:noteId/comments/:commentId/like', async ({ params: { noteId, commentId }, set, authUser }) => {
@@ -235,6 +238,9 @@ export const tastingnote = new Elysia({
     detail: {
       summary: 'Toggle comment like',
       tags: ['TastingNote']
+    },
+    response: {
+      200: TastingNoteModel.LikeToggleResponse
     }
   })
   .post('/', async ({ body, set, authUser }) => {
