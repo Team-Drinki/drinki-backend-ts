@@ -329,12 +329,16 @@ export abstract class TastingNote {
     if (existing) {
       await db.delete(reactions).where(eq(reactions.id, existing.id)).run()
     } else {
-      await db.insert(reactions).values({
-        userId,
-        targetId: noteId,
-        targetType: 'tasting_note',
-        reactionType: 'like'
-      }).run()
+      await db
+        .insert(reactions)
+        .values({
+          userId,
+          targetId: noteId,
+          targetType: 'tasting_note',
+          reactionType: 'like'
+        })
+        .onConflictDoNothing()
+        .run()
     }
 
     const likeCountRow = await db
@@ -387,12 +391,16 @@ export abstract class TastingNote {
     if (existing) {
       await db.delete(reactions).where(eq(reactions.id, existing.id)).run()
     } else {
-      await db.insert(reactions).values({
-        userId,
-        targetId: commentId,
-        targetType: 'comment',
-        reactionType: 'like'
-      }).run()
+      await db
+        .insert(reactions)
+        .values({
+          userId,
+          targetId: commentId,
+          targetType: 'comment',
+          reactionType: 'like'
+        })
+        .onConflictDoNothing()
+        .run()
     }
 
     const likeCountRow = await db
