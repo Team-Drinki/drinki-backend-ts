@@ -200,6 +200,49 @@ export const tastingnote = new Elysia({
       tags: ['TastingNote']
     }
   })
+  .post('/:noteId/like', async ({ params: { noteId }, set, authUser }) => {
+    const result = await TastingNote.toggleNoteLike(noteId, authUser.userId)
+
+    if (!result.success) {
+      set.status = result.status as number
+      return { error: result.error as string }
+    }
+
+    return { liked: result.liked, likeCount: result.likeCount }
+  }, {
+    params: t.Object({
+      noteId: t.Numeric()
+    }),
+    detail: {
+      summary: 'Toggle tasting note like',
+      tags: ['TastingNote']
+    },
+    response: {
+      200: TastingNoteModel.LikeToggleResponse
+    }
+  })
+  .post('/:noteId/comments/:commentId/like', async ({ params: { noteId, commentId }, set, authUser }) => {
+    const result = await TastingNote.toggleCommentLike(noteId, commentId, authUser.userId)
+
+    if (!result.success) {
+      set.status = result.status as number
+      return { error: result.error as string }
+    }
+
+    return { liked: result.liked, likeCount: result.likeCount }
+  }, {
+    params: t.Object({
+      noteId: t.Numeric(),
+      commentId: t.Numeric()
+    }),
+    detail: {
+      summary: 'Toggle comment like',
+      tags: ['TastingNote']
+    },
+    response: {
+      200: TastingNoteModel.LikeToggleResponse
+    }
+  })
   .post('/', async ({ body, set, authUser }) => {
     const newNote = await TastingNote.createNote(authUser.userId, body)
     set.status = 201

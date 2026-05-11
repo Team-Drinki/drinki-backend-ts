@@ -8,6 +8,7 @@ export namespace TastingNoteModel {
     export const Comment = t.Object({
         commentId: t.Number(),
         parentId: t.Nullable(t.Number()),
+        writerId: t.Number(),
         writerNickName: t.String(),
         writerImage: t.Nullable(t.String()),
         content: t.String(),
@@ -18,6 +19,7 @@ export namespace TastingNoteModel {
 
     export const TastingNoteResponse = t.Object({
         noteId: t.Number(),
+        alcoholId: t.Number(),
         title: t.String(),
         content: t.Nullable(t.String()),
         writerId: t.Number(),
@@ -115,10 +117,16 @@ export namespace TastingNoteModel {
         notes: t.Array(TastingNoteList)
     })
 
+    export const LikeToggleResponse = t.Object({
+        liked: t.Boolean(),
+        likeCount: t.Number()
+    })
+
     export type CreateTastingNoteRequestType = Static<typeof CreateTastingNoteRequest>
     export type UpdateTastingNoteRequestType = Static<typeof UpdateTastingNoteRequest>
     export type CreateCommentRequestType = Static<typeof CreateCommentRequest>
     export type UpdateCommentRequestType = Static<typeof UpdateCommentRequest>
     export type HotTastingNoteListResponseType = Static<typeof HotTastingNoteListResponse>
     export type BestTastingNoteListResponseType = Static<typeof BestTastingNoteListResponse>
+    export type LikeToggleResponseType = Static<typeof LikeToggleResponse>
 }
