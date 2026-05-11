@@ -13,8 +13,9 @@ import { alcohols } from "./Alcohols";
 export const tastingNotes = sqliteTable("tasting_notes", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   alcoholId: integer("alcohol_id")
-    .notNull()
     .references(() => alcohols.id),
+  customAlcoholName: text("custom_alcohol_name", { length: 255 }),
+  customAlcoholCategory: text("custom_alcohol_category", { length: 100 }),
   userId: integer("user_id")
     .notNull()
     .references(() => users.id),

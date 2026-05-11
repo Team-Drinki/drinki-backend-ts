@@ -258,9 +258,15 @@ export const tastingnote = new Elysia({
     }
   })
   .post('/', async ({ body, set, authUser }) => {
-    const newNote = await TastingNote.createNote(authUser.userId, body)
+    const result = await TastingNote.createNote(authUser.userId, body)
+
+    if (!result.success) {
+      set.status = result.status ?? 400
+      return { error: result.error as string }
+    }
+
     set.status = 201
-    return newNote
+    return result
   }, {
     body: TastingNoteModel.CreateTastingNoteRequest,
     detail: {

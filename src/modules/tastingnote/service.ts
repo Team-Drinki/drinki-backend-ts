@@ -5,7 +5,19 @@ import { TastingNoteModel } from './model'
 
 export abstract class TastingNote {
   static async createNote(userId: number, body: TastingNoteModel.CreateTastingNoteRequestType) {
-    const { title, content, alcoholId, createdTime, aroma_note, palate_note, finish_note, images } = body
+    const { title, content, alcoholId, customAlcohol, createdTime, aroma_note, palate_note, finish_note, images } = body
+
+    if (!alcoholId && !customAlcohol?.name) {
+      return { success: false, error: '술 정보가 필요합니다. alcoholId 또는 customAlcohol.name을 입력해주세요.', status: 400 }
+    }
+
+    const hasNote =
+      Object.keys(aroma_note).length > 0 ||
+      Object.keys(palate_note).length > 0 ||
+      Object.keys(finish_note).length > 0
+    if (!hasNote) {
+      return { success: false, error: '아로마, 팔레트, 피니쉬 중 하나 이상의 노트를 입력해주세요.', status: 400 }
+    }
 
     const createdAt = createdTime
 
@@ -15,7 +27,9 @@ export abstract class TastingNote {
         title,
         content,
         userId: userId,
-        alcoholId,
+        alcoholId: alcoholId ?? null,
+        customAlcoholName: alcoholId ? null : (customAlcohol?.name ?? null),
+        customAlcoholCategory: alcoholId ? null : (customAlcohol?.category ?? null),
         aromaNote: aroma_note,
         palateNote: palate_note,
         finishNote: finish_note,
@@ -36,19 +50,19 @@ export abstract class TastingNote {
     const conditions = []
 
     if (query) {
-      conditions.push(sql`(${tastingNotes.title} LIKE ${`%${query}%`} OR ${alcohols.name} LIKE ${`%${query}%`})`)
+      conditions.push(sql`(${tastingNotes.title} LIKE ${`%${query}%`} OR ${alcohols.name} LIKE ${`%${query}%`} OR ${tastingNotes.customAlcoholName} LIKE ${`%${query}%`})`)
     }
 
     if (category) {
-      conditions.push(eq(alcoholCategories.name, category))
+      conditions.push(sql`(${alcoholCategories.name} = ${category} OR ${tastingNotes.customAlcoholCategory} = ${category})`)
     }
 
     const baseQuery = db
       .select({
         noteId: tastingNotes.id,
         noteTitle: tastingNotes.title,
-        alcoholCategory: alcoholCategories.name,
-        alcoholName: alcohols.name,
+        alcoholCategory: sql<string>`COALESCE(${alcoholCategories.name}, ${tastingNotes.customAlcoholCategory}, '')`,
+        alcoholName: sql<string>`COALESCE(${alcohols.name}, ${tastingNotes.customAlcoholName}, '')`,
         images: tastingNotes.images,
         writer: users.nickname,
         commentNum: sql<number>`(SELECT count(*) FROM ${comments} WHERE ${comments.targetType} = 'tasting_note' AND ${comments.targetId} = ${tastingNotes.id})`,
@@ -58,8 +72,8 @@ export abstract class TastingNote {
         createdTime: tastingNotes.createdAt,
       })
       .from(tastingNotes)
-      .innerJoin(alcohols, eq(tastingNotes.alcoholId, alcohols.id))
-      .innerJoin(alcoholCategories, eq(alcohols.categoryId, alcoholCategories.id))
+      .leftJoin(alcohols, eq(tastingNotes.alcoholId, alcohols.id))
+      .leftJoin(alcoholCategories, eq(alcohols.categoryId, alcoholCategories.id))
       .innerJoin(users, eq(tastingNotes.userId, users.id))
       .where(and(...conditions))
       .limit(size)
@@ -76,8 +90,8 @@ export abstract class TastingNote {
     const totalCountQuery = await db
       .select({ count: count() })
       .from(tastingNotes)
-      .innerJoin(alcohols, eq(tastingNotes.alcoholId, alcohols.id))
-      .innerJoin(alcoholCategories, eq(alcohols.categoryId, alcoholCategories.id))
+      .leftJoin(alcohols, eq(tastingNotes.alcoholId, alcohols.id))
+      .leftJoin(alcoholCategories, eq(alcohols.categoryId, alcoholCategories.id))
       .where(and(...conditions))
       .get()
 
@@ -109,8 +123,8 @@ export abstract class TastingNote {
       .select({
         noteId: tastingNotes.id,
         noteTitle: tastingNotes.title,
-        alcoholCategory: alcoholCategories.name,
-        alcoholName: alcohols.name,
+        alcoholCategory: sql<string>`COALESCE(${alcoholCategories.name}, ${tastingNotes.customAlcoholCategory}, '')`,
+        alcoholName: sql<string>`COALESCE(${alcohols.name}, ${tastingNotes.customAlcoholName}, '')`,
         images: tastingNotes.images,
         writer: users.nickname,
         commentNum: sql<number>`(SELECT count(*) FROM ${comments} WHERE ${comments.targetType} = 'tasting_note' AND ${comments.targetId} = ${tastingNotes.id})`,
@@ -120,8 +134,8 @@ export abstract class TastingNote {
         createdTime: tastingNotes.createdAt,
       })
       .from(tastingNotes)
-      .innerJoin(alcohols, eq(tastingNotes.alcoholId, alcohols.id))
-      .innerJoin(alcoholCategories, eq(alcohols.categoryId, alcoholCategories.id))
+      .leftJoin(alcohols, eq(tastingNotes.alcoholId, alcohols.id))
+      .leftJoin(alcoholCategories, eq(alcohols.categoryId, alcoholCategories.id))
       .innerJoin(users, eq(tastingNotes.userId, users.id))
       .orderBy(desc(sql`(SELECT count(*) FROM ${reactions} WHERE ${reactions.targetType} = 'tasting_note' AND ${reactions.targetId} = ${tastingNotes.id} AND ${reactions.reactionType} = 'like')`), desc(tastingNotes.createdAt))
       .limit(5)
@@ -143,8 +157,8 @@ export abstract class TastingNote {
       .select({
         noteId: tastingNotes.id,
         noteTitle: tastingNotes.title,
-        alcoholCategory: alcoholCategories.name,
-        alcoholName: alcohols.name,
+        alcoholCategory: sql<string>`COALESCE(${alcoholCategories.name}, ${tastingNotes.customAlcoholCategory}, '')`,
+        alcoholName: sql<string>`COALESCE(${alcohols.name}, ${tastingNotes.customAlcoholName}, '')`,
         images: tastingNotes.images,
         writer: users.nickname,
         commentNum: sql<number>`(SELECT count(*) FROM ${comments} WHERE ${comments.targetType} = 'tasting_note' AND ${comments.targetId} = ${tastingNotes.id})`,
@@ -154,8 +168,8 @@ export abstract class TastingNote {
         createdTime: tastingNotes.createdAt,
       })
       .from(tastingNotes)
-      .innerJoin(alcohols, eq(tastingNotes.alcoholId, alcohols.id))
-      .innerJoin(alcoholCategories, eq(alcohols.categoryId, alcoholCategories.id))
+      .leftJoin(alcohols, eq(tastingNotes.alcoholId, alcohols.id))
+      .leftJoin(alcoholCategories, eq(alcohols.categoryId, alcoholCategories.id))
       .innerJoin(users, eq(tastingNotes.userId, users.id))
       .where(eq(tastingNotes.alcoholId, alcoholId))
       .orderBy(desc(sql`(SELECT count(*) FROM ${reactions} WHERE ${reactions.targetType} = 'tasting_note' AND ${reactions.targetId} = ${tastingNotes.id} AND ${reactions.reactionType} = 'like')`), desc(tastingNotes.createdAt))
@@ -432,6 +446,8 @@ export abstract class TastingNote {
         writerId: tastingNotes.userId,
         writerName: users.nickname,
         writerImage: users.profileImageUrl,
+        alcoholName: sql<string>`COALESCE(${alcohols.name}, ${tastingNotes.customAlcoholName}, '')`,
+        alcoholCategory: sql<string>`COALESCE(${alcoholCategories.name}, ${tastingNotes.customAlcoholCategory}, '')`,
         createdTime: tastingNotes.createdAt,
         aromaNote: tastingNotes.aromaNote,
         palateNote: tastingNotes.palateNote,
@@ -441,6 +457,8 @@ export abstract class TastingNote {
       })
       .from(tastingNotes)
       .innerJoin(users, eq(tastingNotes.userId, users.id))
+      .leftJoin(alcohols, eq(tastingNotes.alcoholId, alcohols.id))
+      .leftJoin(alcoholCategories, eq(alcohols.categoryId, alcoholCategories.id))
       .where(eq(tastingNotes.id, id))
       .get()
 
@@ -521,6 +539,8 @@ export abstract class TastingNote {
       writerId: note.writerId,
       writerName: note.writerName,
       writerImage: note.writerImage,
+      alcoholName: note.alcoholName,
+      alcoholCategory: note.alcoholCategory,
       like: likeCount,
       unlike: unlikeCount,
       viewer: note.viewCount,

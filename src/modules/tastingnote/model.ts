@@ -25,6 +25,8 @@ export namespace TastingNoteModel {
         writerId: t.Number(),
         writerName: t.String(),
         writerImage: t.Nullable(t.String()),
+        alcoholName: t.String(),
+        alcoholCategory: t.String(),
         like: t.Number(),
         unlike: t.Number(),
         viewer: t.Number(),
@@ -61,7 +63,7 @@ export namespace TastingNoteModel {
         noteId: t.Number(),
         noteTitle: t.String(),
         alcoholCategory: t.String(),
-        alcoholName: t.String(),
+        alcoholName: t.String(),  // COALESCE fallback ensures non-null
         noteImage: t.String(),
         writer: t.String(),
         commentNum: t.Number(),
@@ -81,8 +83,12 @@ export namespace TastingNoteModel {
 
     export const CreateTastingNoteRequest = t.Object({
         title: t.String(),
+        alcoholId: t.Optional(t.Numeric()),
+        customAlcohol: t.Optional(t.Object({
+            name: t.String({ minLength: 1 }),
+            category: t.String({ minLength: 1 })
+        })),
         content: t.Nullable(t.String()),
-        alcoholId: t.Numeric(),
         createdTime: t.Date(),
         aroma_note: RatingMap,
         palate_note: RatingMap,
