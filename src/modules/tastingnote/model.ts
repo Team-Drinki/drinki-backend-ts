@@ -19,6 +19,7 @@ export namespace TastingNoteModel {
     export const TastingNoteResponse = t.Object({
         noteId: t.Number(),
         title: t.String(),
+        content: t.Nullable(t.String()),
         writerId: t.Number(),
         writerName: t.String(),
         writerImage: t.Nullable(t.String()),
@@ -85,6 +86,7 @@ export namespace TastingNoteModel {
             name: t.String({ minLength: 1 }),
             category: t.String({ minLength: 1 })
         })),
+        content: t.Nullable(t.String()),
         createdTime: t.Date(),
         aroma_note: RatingMap,
         palate_note: RatingMap,
@@ -94,6 +96,7 @@ export namespace TastingNoteModel {
 
     export const UpdateTastingNoteRequest = t.Object({
         title: t.String(),
+        content: t.Nullable(t.String()),
         aroma_note: RatingMap,
         palate_note: RatingMap,
         finish_note: RatingMap,

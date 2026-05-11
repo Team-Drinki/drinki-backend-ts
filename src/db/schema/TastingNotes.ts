@@ -20,6 +20,7 @@ export const tastingNotes = sqliteTable("tasting_notes", {
     .notNull()
     .references(() => users.id),
   title: text("title", { length: 255 }).notNull(),
+  content: text("content"),
   images: text("images", { mode: "json" })
     .notNull()
     .$type<string[]>()

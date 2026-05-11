@@ -5,7 +5,7 @@ import { TastingNoteModel } from './model'
 
 export abstract class TastingNote {
   static async createNote(userId: number, body: TastingNoteModel.CreateTastingNoteRequestType) {
-    const { title, alcoholId, customAlcohol, createdTime, aroma_note, palate_note, finish_note, images } = body
+    const { title, content, alcoholId, customAlcohol, createdTime, aroma_note, palate_note, finish_note, images } = body
 
     if (!alcoholId && !customAlcohol?.name) {
       return { success: false, error: '술 정보가 필요합니다. alcoholId 또는 customAlcohol.name을 입력해주세요.', status: 400 }
@@ -25,6 +25,7 @@ export abstract class TastingNote {
       .insert(tastingNotes)
       .values({
         title,
+        content,
         userId: userId,
         alcoholId: alcoholId ?? null,
         customAlcoholName: alcoholId ? null : (customAlcohol?.name ?? null),
@@ -187,7 +188,7 @@ export abstract class TastingNote {
   }
 
   static async updateNote(id: number, userId: number, body: TastingNoteModel.UpdateTastingNoteRequestType) {
-    const { title, aroma_note, palate_note, finish_note, images } = body
+    const { title, content, aroma_note, palate_note, finish_note, images } = body
 
     const note = await db.select().from(tastingNotes).where(eq(tastingNotes.id, id)).get()
 
@@ -203,6 +204,7 @@ export abstract class TastingNote {
       .update(tastingNotes)
       .set({
         title,
+        content,
         aromaNote: aroma_note,
         palateNote: palate_note,
         finishNote: finish_note,
@@ -323,6 +325,7 @@ export abstract class TastingNote {
       .select({
         noteId: tastingNotes.id,
         title: tastingNotes.title,
+        content: tastingNotes.content,
         writerId: tastingNotes.userId,
         writerName: users.nickname,
         writerImage: users.profileImageUrl,
@@ -412,6 +415,7 @@ export abstract class TastingNote {
     return {
       noteId: note.noteId,
       title: note.title,
+      content: note.content,
       writerId: note.writerId,
       writerName: note.writerName,
       writerImage: note.writerImage,

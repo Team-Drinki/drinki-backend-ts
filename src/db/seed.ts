@@ -245,6 +245,7 @@ async function seed() {
           userId: user.id,
           alcoholId: createdAlcohols[0]!.id, // 글렌피딕
           title: "글렌피딕 12년 첫 시음",
+          content: "입문용으로 아주 훌륭합니다. 사과향이 일품이네요.",
           aromaNote: { 과일: { 사과: 4, 배: 3 }, 꽃: { 바닐라: 2 } },
           palateNote: { 단맛: { 꿀: 4 }, 스파이시: { 후추: 2 } },
           finishNote: { 길이: { 중간: 3 } },
@@ -256,6 +257,7 @@ async function seed() {
           userId: user.id,
           alcoholId: createdAlcohols[1]!.id, // 맥캘란
           title: "맥캘란 18년 역시 최고",
+          content: "비싼 값을 합니다. 쉐리향의 깊이가 다르네요.",
           aromaNote: { 과일: { 말린과일: 5 }, 오크: { 쉐리: 5 } },
           palateNote: { 바디감: { 묵직함: 4 }, 단맛: { 초콜릿: 3 } },
           finishNote: { 길이: { 김: 5 } },
@@ -267,6 +269,7 @@ async function seed() {
           userId: user.id,
           alcoholId: createdAlcohols[0]!.id, // 글렌피딕
           title: "글렌피딕 데일리로 좋네요",
+          content: "가볍게 즐기기 좋은 위스키입니다.",
           aromaNote: { 과일: { 청사과: 4 } },
           palateNote: { 가벼움: { 깔끔함: 4 } },
           finishNote: { 길이: { 짧음: 2 } },
@@ -278,6 +281,7 @@ async function seed() {
           userId: user.id,
           alcoholId: createdAlcohols[8]!.id, // 조니워커 블루
           title: "조니워커 블루 - 영원한 클래식",
+          content: "말이 필요 없는 최고의 블렌디드 위스키입니다.",
           aromaNote: { 과일: { 오렌지: 4 }, 꽃: { 헤더: 3 }, 오크: { 쉐리: 4 } },
           palateNote: { 단맛: { 꿀: 5, 바닐라: 4 }, 스파이시: { 정향: 2 } },
           finishNote: { 길이: { 김: 5 } },
