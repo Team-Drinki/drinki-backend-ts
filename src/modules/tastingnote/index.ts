@@ -45,7 +45,21 @@ export const tastingnote = new Elysia({
       200: TastingNoteModel.BestTastingNoteListResponse
     }
   })
-  .get('/:noteId', async ({ params: { noteId }, set }) => {
+  .get('/:noteId', async ({ params: { noteId }, cookie, set }) => {
+    const raw = cookie.viewed_notes?.value
+    const viewedIds = (typeof raw === 'string' ? raw : '').split(',').filter(Boolean)
+
+    if (!viewedIds.includes(String(noteId))) {
+      await TastingNote.incrementViewCount(noteId)
+      viewedIds.push(String(noteId))
+      cookie.viewed_notes!.set({
+        value: viewedIds.slice(-100).join(','),
+        maxAge: 60 * 60 * 24,
+        httpOnly: true,
+        path: '/'
+      })
+    }
+
     const note = await TastingNote.getNoteById(noteId)
 
     if (!note) {

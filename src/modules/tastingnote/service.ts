@@ -437,6 +437,7 @@ export abstract class TastingNote {
         palateNote: tastingNotes.palateNote,
         finishNote: tastingNotes.finishNote,
         images: tastingNotes.images,
+        viewCount: tastingNotes.viewCount,
       })
       .from(tastingNotes)
       .innerJoin(users, eq(tastingNotes.userId, users.id))
@@ -522,7 +523,7 @@ export abstract class TastingNote {
       writerImage: note.writerImage,
       like: likeCount,
       unlike: unlikeCount,
-      viewer: 0, // TODO : viewer count 구현
+      viewer: note.viewCount,
       createdTime: note.createdTime,
       aroma_note: note.aromaNote as Record<string, Record<string, number>>,
       palate_note: note.palateNote as Record<string, Record<string, number>>,
@@ -530,5 +531,13 @@ export abstract class TastingNote {
       images: note.images as string[],
       comments: commentsWithReactions
     }
+  }
+
+  static async incrementViewCount(id: number) {
+    await db
+      .update(tastingNotes)
+      .set({ viewCount: sql`${tastingNotes.viewCount} + 1` })
+      .where(eq(tastingNotes.id, id))
+      .run()
   }
 }
