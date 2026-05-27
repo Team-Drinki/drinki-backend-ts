@@ -289,6 +289,35 @@ async function seed() {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
+        // custom alcohol 노트 — alcoholId 없이 직접 입력
+        {
+          userId: user.id,
+          alcoholId: null,
+          customAlcoholName: "동동주",
+          customAlcoholCategory: "전통주",
+          title: "동네 양조장 동동주",
+          content: "시장 골목 양조장에서 사온 동동주. DB에 없는 술이지만 맛은 최고.",
+          aromaNote: { 곡물: { 쌀: 4 }, 과일: { 복숭아: 2 } },
+          palateNote: { 단맛: { 꿀: 3 }, 산미: { 새콤함: 3 } },
+          finishNote: { 길이: { 짧음: 2 } },
+          images: [],
+          createdAt: new Date(Date.now() - 3600000),
+          updatedAt: new Date(Date.now() - 3600000),
+        },
+        {
+          userId: user.id,
+          alcoholId: null,
+          customAlcoholName: "자가양조 흑맥주",
+          customAlcoholCategory: "맥주",
+          title: "직접 담근 홈브루 흑맥주",
+          content: "홈브루잉으로 만들어봤는데 생각보다 훨씬 맛있다.",
+          aromaNote: { 곡물: { 맥아: 5 }, 기타: { 커피: 3, 초콜릿: 2 } },
+          palateNote: { 바디감: { 묵직함: 4 }, 쓴맛: { 홉: 3 } },
+          finishNote: { 길이: { 중간: 3 } },
+          images: [],
+          createdAt: new Date(Date.now() - 7200000),
+          updatedAt: new Date(Date.now() - 7200000),
+        },
       ])
       .returning();
     console.log("✅ Created", notes.length, "tasting notes");

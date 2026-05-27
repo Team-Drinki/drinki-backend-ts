@@ -6,6 +6,7 @@ import { authGuard } from "../src/modules/auth/middleware";
 import { user } from "../src/modules/user";
 import { wish } from "../src/modules/wish";
 import { alcohol } from "../src/modules/alcohol";
+import { tastingnote } from "../src/modules/tastingnote";
 import { config } from "../src/utils/env";
 
 // 테스트용 앱 생성
@@ -27,7 +28,7 @@ export const createTestApp = () => {
       }),
     )
     .group("/api/v1", (app) =>
-      app.use(auth).use(authGuard).use(user).use(wish).use(alcohol),
+      app.use(auth).use(authGuard).use(user).use(wish).use(alcohol).use(tastingnote),
     );
 };
 
