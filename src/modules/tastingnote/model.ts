@@ -19,7 +19,7 @@ export namespace TastingNoteModel {
 
     export const TastingNoteResponse = t.Object({
         noteId: t.Number(),
-        alcoholId: t.Number(),
+        alcoholId: t.Nullable(t.Number()),
         title: t.String(),
         content: t.Nullable(t.String()),
         writerId: t.Number(),
