@@ -140,11 +140,12 @@ describe("TastingNote API", () => {
           alcoholName: "글렌피딕 12년",
           noteImage: "",
           writer: "테스터",
+          writerImage: null,
           commentNum: 0,
           like: 0,
           unlike: 0,
           viewer: 0,
-          createdTime: new Date().toISOString(),
+          createdTime: new Date(),
         },
       ],
       pageUtil: {
