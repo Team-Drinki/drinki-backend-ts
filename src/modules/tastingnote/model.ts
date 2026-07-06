@@ -8,6 +8,7 @@ export namespace TastingNoteModel {
     export const Comment = t.Object({
         commentId: t.Number(),
         parentId: t.Nullable(t.Number()),
+        writerId: t.Number(),
         writerNickName: t.String(),
         writerImage: t.Nullable(t.String()),
         content: t.String(),
@@ -18,11 +19,14 @@ export namespace TastingNoteModel {
 
     export const TastingNoteResponse = t.Object({
         noteId: t.Number(),
+        alcoholId: t.Nullable(t.Number()),
         title: t.String(),
         content: t.Nullable(t.String()),
         writerId: t.Number(),
         writerName: t.String(),
         writerImage: t.Nullable(t.String()),
+        alcoholName: t.String(),
+        alcoholCategory: t.String(),
         like: t.Number(),
         unlike: t.Number(),
         viewer: t.Number(),
@@ -59,7 +63,7 @@ export namespace TastingNoteModel {
         noteId: t.Number(),
         noteTitle: t.String(),
         alcoholCategory: t.String(),
-        alcoholName: t.String(),
+        alcoholName: t.String(),  // COALESCE fallback ensures non-null
         noteImage: t.String(),
         writer: t.String(),
         commentNum: t.Number(),
@@ -79,8 +83,12 @@ export namespace TastingNoteModel {
 
     export const CreateTastingNoteRequest = t.Object({
         title: t.String(),
+        alcoholId: t.Optional(t.Numeric()),
+        customAlcohol: t.Optional(t.Object({
+            name: t.String({ minLength: 1 }),
+            category: t.String({ minLength: 1 })
+        })),
         content: t.Nullable(t.String()),
-        alcoholId: t.Numeric(),
         createdTime: t.Date(),
         aroma_note: RatingMap,
         palate_note: RatingMap,
@@ -115,10 +123,16 @@ export namespace TastingNoteModel {
         notes: t.Array(TastingNoteList)
     })
 
+    export const LikeToggleResponse = t.Object({
+        liked: t.Boolean(),
+        likeCount: t.Number()
+    })
+
     export type CreateTastingNoteRequestType = Static<typeof CreateTastingNoteRequest>
     export type UpdateTastingNoteRequestType = Static<typeof UpdateTastingNoteRequest>
     export type CreateCommentRequestType = Static<typeof CreateCommentRequest>
     export type UpdateCommentRequestType = Static<typeof UpdateCommentRequest>
     export type HotTastingNoteListResponseType = Static<typeof HotTastingNoteListResponse>
     export type BestTastingNoteListResponseType = Static<typeof BestTastingNoteListResponse>
+    export type LikeToggleResponseType = Static<typeof LikeToggleResponse>
 }

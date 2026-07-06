@@ -6,8 +6,9 @@ import { alcohols } from "./Alcohols";
 export const tastingNotes = pgTable("tasting_notes", {
   id: serial("id").primaryKey(),
   alcoholId: integer("alcohol_id")
-    .notNull()
     .references(() => alcohols.id),
+  customAlcoholName: text("custom_alcohol_name", { length: 255 }),
+  customAlcoholCategory: text("custom_alcohol_category", { length: 100 }),
   userId: integer("user_id")
     .notNull()
     .references(() => users.id),
@@ -19,6 +20,7 @@ export const tastingNotes = pgTable("tasting_notes", {
   finishNote: jsonb("finish_note").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  viewCount: integer("view_count").notNull().default(0),
 });
 
 export type TastingNote = typeof tastingNotes.$inferSelect; // 조회용
