@@ -1,6 +1,7 @@
 import { Elysia } from "elysia";
 import { t } from "elysia";
 import openapi from "@elysiajs/openapi";
+import { cors } from "@elysiajs/cors";
 
 import { jwt } from "@elysiajs/jwt";
 import { config } from "./utils/env";
@@ -13,6 +14,12 @@ import { wish } from "./modules/wish";
 import { tastingnote } from "./modules/tastingnote";
 
 const app = new Elysia()
+  .use(
+    cors({
+      origin: config.CLIENT_URL,
+      credentials: true,
+    }),
+  )
   .use(openapi())
   .group(
     "/api/v1",
