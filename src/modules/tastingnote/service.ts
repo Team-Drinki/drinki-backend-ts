@@ -312,13 +312,13 @@ export abstract class TastingNote {
   }
 
   static async toggleNoteLike(noteId: number, userId: number) {
-    const note = await db.select().from(tastingNotes).where(eq(tastingNotes.id, noteId)).get()
+    const [note] = await db.select().from(tastingNotes).where(eq(tastingNotes.id, noteId)).limit(1)
 
     if (!note) {
       return { success: false, error: '존재하지 않는 테이스팅 노트입니다.', status: 404 }
     }
 
-    const existing = await db
+    const [existing] = await db
       .select()
       .from(reactions)
       .where(
@@ -329,10 +329,10 @@ export abstract class TastingNote {
           eq(reactions.reactionType, 'like')
         )
       )
-      .get()
+      .limit(1)
 
     if (existing) {
-      await db.delete(reactions).where(eq(reactions.id, existing.id)).run()
+      await db.delete(reactions).where(eq(reactions.id, existing.id))
     } else {
       await db
         .insert(reactions)
@@ -343,10 +343,9 @@ export abstract class TastingNote {
           reactionType: 'like'
         })
         .onConflictDoNothing()
-        .run()
     }
 
-    const likeCountRow = await db
+    const [likeCountRow] = await db
       .select({ count: sql<number>`count(*)` })
       .from(reactions)
       .where(
@@ -356,7 +355,6 @@ export abstract class TastingNote {
           eq(reactions.reactionType, 'like')
         )
       )
-      .get()
 
     return {
       success: true,
@@ -366,7 +364,7 @@ export abstract class TastingNote {
   }
 
   static async toggleCommentLike(noteId: number, commentId: number, userId: number) {
-    const comment = await db.select().from(comments).where(eq(comments.id, commentId)).get()
+    const [comment] = await db.select().from(comments).where(eq(comments.id, commentId)).limit(1)
 
     if (!comment) {
       return { success: false, error: '존재하지 않는 댓글입니다.', status: 404 }
@@ -380,7 +378,7 @@ export abstract class TastingNote {
       return { success: false, error: '삭제된 댓글입니다.', status: 400 }
     }
 
-    const existing = await db
+    const [existing] = await db
       .select()
       .from(reactions)
       .where(
@@ -391,10 +389,10 @@ export abstract class TastingNote {
           eq(reactions.reactionType, 'like')
         )
       )
-      .get()
+      .limit(1)
 
     if (existing) {
-      await db.delete(reactions).where(eq(reactions.id, existing.id)).run()
+      await db.delete(reactions).where(eq(reactions.id, existing.id))
     } else {
       await db
         .insert(reactions)
@@ -405,10 +403,9 @@ export abstract class TastingNote {
           reactionType: 'like'
         })
         .onConflictDoNothing()
-        .run()
     }
 
-    const likeCountRow = await db
+    const [likeCountRow] = await db
       .select({ count: sql<number>`count(*)` })
       .from(reactions)
       .where(
@@ -418,7 +415,6 @@ export abstract class TastingNote {
           eq(reactions.reactionType, 'like')
         )
       )
-      .get()
 
     return {
       success: true,
@@ -546,6 +542,5 @@ export abstract class TastingNote {
       .update(tastingNotes)
       .set({ viewCount: sql`${tastingNotes.viewCount} + 1` })
       .where(eq(tastingNotes.id, id))
-      .run()
   }
 }
