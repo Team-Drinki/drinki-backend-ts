@@ -5,7 +5,7 @@ on:
     branches: [main, feat/deploy-to-gcp]
 
 env:
-  PROJECT_ID: drinki-backend
+  PROJECT_ID: drinki-backend-2026
   REGION: asia-northeast3
   SERVICE_NAME: drinki-api
   REGISTRY: asia-northeast3-docker.pkg.dev
@@ -54,6 +54,7 @@ jobs:
             --cpu 1 \
             --min-instances 1 \
             --max-instances 3 \
+            --service-account drinki-runner@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
             --add-cloudsql-instances ${{ env.PROJECT_ID }}:${{ env.REGION }}:drinki-db \
             --set-secrets ACCESS_JWT_SECRET=access-jwt-secret:latest,REFRESH_JWT_SECRET=refresh-jwt-secret:latest,GOOGLE_CLIENT_ID=google-client-id:latest,GOOGLE_CLIENT_SECRET=google-client-secret:latest,DATABASE_URL=database-url:latest \
             --set-env-vars "GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI || 'https://placeholder.example.com' }},CLIENT_URL=${{ secrets.CLIENT_URL || 'https://placeholder.example.com' }}"
