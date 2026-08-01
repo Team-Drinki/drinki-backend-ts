@@ -52,8 +52,9 @@ jobs:
             --port 8000 \
             --memory 512Mi \
             --cpu 1 \
-            --min-instances 1 \
+            --min-instances 0 \
             --max-instances 3 \
+            --concurrency 40 \
             --service-account drinki-runner@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
             --add-cloudsql-instances ${{ env.PROJECT_ID }}:${{ env.REGION }}:drinki-db \
             --set-secrets ACCESS_JWT_SECRET=access-jwt-secret:latest,REFRESH_JWT_SECRET=refresh-jwt-secret:latest,GOOGLE_CLIENT_ID=google-client-id:latest,GOOGLE_CLIENT_SECRET=google-client-secret:latest,DATABASE_URL=database-url:latest \
