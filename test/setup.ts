@@ -2,7 +2,6 @@ import { Elysia } from "elysia";
 import { jwt } from "@elysiajs/jwt";
 import { cookie } from "@elysiajs/cookie";
 import { auth } from "../src/modules/auth";
-import { authGuard } from "../src/modules/auth/middleware";
 import { user } from "../src/modules/user";
 import { wish } from "../src/modules/wish";
 import { alcohol } from "../src/modules/alcohol";
@@ -28,7 +27,7 @@ export const createTestApp = () => {
       }),
     )
     .group("/api/v1", (app) =>
-      app.use(auth).use(authGuard).use(user).use(wish).use(alcohol).use(tastingnote),
+      app.use(auth).use(user).use(wish).use(alcohol).use(tastingnote),
     );
 };
 

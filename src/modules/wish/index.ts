@@ -1,11 +1,35 @@
 // modules/wish/index.ts
 import { Elysia, t } from "elysia";
+import { authGuard } from "../auth/middleware";
 import { Wish } from "./service";
 import { wishListRequest, wishListResponse } from "./model";
 
 export const wish = new Elysia({
   prefix: "/wishes",
 })
+  // ===== 특정 사용자 위시 조회 (공개) =====
+
+  // 특정 사용자 위시리스트 조회
+  .get(
+    "/wishes/:userId",
+    async ({ params, query }: any) => {
+      return await Wish.getUserWishList(params.userId, query);
+    },
+    {
+      params: t.Object({
+        userId: t.Numeric({ minimum: 1 }),
+      }),
+      query: wishListRequest,
+      response: {
+        200: wishListResponse,
+      },
+      detail: {
+        summary: "특정 사용자 위시리스트 조회 API",
+        tags: ["Wish"],
+      },
+    },
+  )
+  .use(authGuard)
   // ===== 내 위시 관리 =====
 
   // 내 위시리스트 조회
@@ -85,29 +109,6 @@ export const wish = new Elysia({
       }),
       detail: {
         summary: "위시 삭제 API",
-        tags: ["Wish"],
-      },
-    },
-  )
-
-  // ===== 특정 사용자 위시 조회 (공개) =====
-
-  // 특정 사용자 위시리스트 조회
-  .get(
-    "/wishes/:userId",
-    async ({ params, query }: any) => {
-      return await Wish.getUserWishList(params.userId, query);
-    },
-    {
-      params: t.Object({
-        userId: t.Numeric({ minimum: 1 }),
-      }),
-      query: wishListRequest,
-      response: {
-        200: wishListResponse,
-      },
-      detail: {
-        summary: "특정 사용자 위시리스트 조회 API",
         tags: ["Wish"],
       },
     },
