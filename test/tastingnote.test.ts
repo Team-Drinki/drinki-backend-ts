@@ -22,6 +22,36 @@ const BASE_NOTE = {
   comments: [],
 };
 
+const NOTE_WITH_IMAGE = {
+  noteId: 1,
+  noteTitle: "글렌피딕 12년 첫 시음",
+  alcoholCategory: "위스키",
+  alcoholName: "글렌피딕 12년",
+  noteImage: "https://example.com/note.jpg",
+  writer: "홍길동",
+  writerImage: "https://example.com/profile.jpg",
+  commentNum: 2,
+  like: 5,
+  unlike: 1,
+  viewer: 10,
+  createdTime: new Date("2024-01-01"),
+};
+
+const NOTE_WITHOUT_WRITER_IMAGE = {
+  ...NOTE_WITH_IMAGE,
+  noteId: 2,
+  writerImage: null,
+};
+
+const PAGE_UTIL = {
+  currentPage: 1,
+  totalPages: 1,
+  totalCount: 1,
+  pageSize: 10,
+  hasNext: false,
+  hasPrevious: false,
+};
+
 describe("TastingNote API", () => {
   let app: Elysia;
   let validToken: string;
@@ -59,7 +89,7 @@ describe("TastingNote API", () => {
         TastingNote: {
           getNoteById: mock(async () => ({
             ...BASE_NOTE,
-            alcoholId: null,          // custom alcohol: DB에 null로 저장됨
+            alcoholId: null,
             alcoholName: "직접입력술",
             alcoholCategory: "기타",
           })),
@@ -110,11 +140,12 @@ describe("TastingNote API", () => {
           alcoholName: "글렌피딕 12년",
           noteImage: "",
           writer: "테스터",
+          writerImage: null,
           commentNum: 0,
           like: 0,
           unlike: 0,
           viewer: 0,
-          createdTime: new Date().toISOString(),
+          createdTime: new Date(),
         },
       ],
       pageUtil: {
@@ -243,6 +274,153 @@ describe("TastingNote API", () => {
       );
 
       expect(response.status).toBe(401);
+    });
+  });
+});
+
+describe("TastingNote - writerImage in list responses", () => {
+  let app: Elysia;
+  let validToken: string;
+
+  beforeAll(async () => {
+    app = createTestApp();
+    validToken = await createTestToken(app, 1);
+  });
+
+  describe("GET /api/v1/notes - 전체 목록", () => {
+    test("should include writerImage in each note", async () => {
+      mock.module("../src/modules/tastingnote/service", () => ({
+        TastingNote: {
+          getNotes: mock(async () => ({ notes: [NOTE_WITH_IMAGE], pageUtil: PAGE_UTIL })),
+        },
+      }));
+
+      const response = await app.handle(
+        new Request("http://localhost/api/v1/notes", {
+          headers: { Cookie: `accessToken=${validToken}` },
+        }),
+      );
+
+      expect(response.status).toBe(200);
+      const body = await response.json();
+      expect(body.notes[0].writerImage).toBe("https://example.com/profile.jpg");
+    });
+
+    test("should return null writerImage when user has no profile image", async () => {
+      mock.module("../src/modules/tastingnote/service", () => ({
+        TastingNote: {
+          getNotes: mock(async () => ({ notes: [NOTE_WITHOUT_WRITER_IMAGE], pageUtil: PAGE_UTIL })),
+        },
+      }));
+
+      const response = await app.handle(
+        new Request("http://localhost/api/v1/notes", {
+          headers: { Cookie: `accessToken=${validToken}` },
+        }),
+      );
+
+      expect(response.status).toBe(200);
+      const body = await response.json();
+      expect(body.notes[0].writerImage).toBeNull();
+    });
+
+    test("should reflect updated profile image", async () => {
+      const updatedUrl = "https://example.com/updated-profile.jpg";
+
+      mock.module("../src/modules/tastingnote/service", () => ({
+        TastingNote: {
+          getNotes: mock(async () => ({
+            notes: [{ ...NOTE_WITH_IMAGE, writerImage: updatedUrl }],
+            pageUtil: PAGE_UTIL,
+          })),
+        },
+      }));
+
+      const response = await app.handle(
+        new Request("http://localhost/api/v1/notes", {
+          headers: { Cookie: `accessToken=${validToken}` },
+        }),
+      );
+
+      expect(response.status).toBe(200);
+      const body = await response.json();
+      expect(body.notes[0].writerImage).toBe(updatedUrl);
+    });
+  });
+
+  describe("GET /api/v1/notes/hot - 인기 목록", () => {
+    test("should include writerImage in each note", async () => {
+      mock.module("../src/modules/tastingnote/service", () => ({
+        TastingNote: {
+          getHotNotes: mock(async () => ({ notes: [NOTE_WITH_IMAGE] })),
+        },
+      }));
+
+      const response = await app.handle(
+        new Request("http://localhost/api/v1/notes/hot", {
+          headers: { Cookie: `accessToken=${validToken}` },
+        }),
+      );
+
+      expect(response.status).toBe(200);
+      const body = await response.json();
+      expect(body.notes[0].writerImage).toBe("https://example.com/profile.jpg");
+    });
+
+    test("should return null writerImage when user has no profile image", async () => {
+      mock.module("../src/modules/tastingnote/service", () => ({
+        TastingNote: {
+          getHotNotes: mock(async () => ({ notes: [NOTE_WITHOUT_WRITER_IMAGE] })),
+        },
+      }));
+
+      const response = await app.handle(
+        new Request("http://localhost/api/v1/notes/hot", {
+          headers: { Cookie: `accessToken=${validToken}` },
+        }),
+      );
+
+      expect(response.status).toBe(200);
+      const body = await response.json();
+      expect(body.notes[0].writerImage).toBeNull();
+    });
+  });
+
+  describe("GET /api/v1/notes/best/:alcoholId - 베스트 목록", () => {
+    test("should include writerImage in each note", async () => {
+      mock.module("../src/modules/tastingnote/service", () => ({
+        TastingNote: {
+          getBestNotes: mock(async () => ({ notes: [NOTE_WITH_IMAGE] })),
+        },
+      }));
+
+      const response = await app.handle(
+        new Request("http://localhost/api/v1/notes/best/1", {
+          headers: { Cookie: `accessToken=${validToken}` },
+        }),
+      );
+
+      expect(response.status).toBe(200);
+      const body = await response.json();
+      expect(body.notes[0].writerImage).toBe("https://example.com/profile.jpg");
+    });
+
+    test("should return null writerImage when user has no profile image", async () => {
+      mock.module("../src/modules/tastingnote/service", () => ({
+        TastingNote: {
+          getBestNotes: mock(async () => ({ notes: [NOTE_WITHOUT_WRITER_IMAGE] })),
+        },
+      }));
+
+      const response = await app.handle(
+        new Request("http://localhost/api/v1/notes/best/1", {
+          headers: { Cookie: `accessToken=${validToken}` },
+        }),
+      );
+
+      expect(response.status).toBe(200);
+      const body = await response.json();
+      expect(body.notes[0].writerImage).toBeNull();
     });
   });
 });
