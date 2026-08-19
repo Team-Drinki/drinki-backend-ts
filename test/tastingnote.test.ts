@@ -176,6 +176,20 @@ describe("TastingNote API", () => {
       expect(body.notes).toHaveLength(1);
     });
 
+    test("로그인하지 않아도 노트 목록을 조회할 수 있다", async () => {
+      mock.module("../src/modules/tastingnote/service", () => ({
+        TastingNote: {
+          getNotes: mock(async () => listResponse),
+        },
+      }));
+
+      const response = await app.handle(
+        new Request("http://localhost/api/v1/notes"),
+      );
+
+      expect(response.status).toBe(200);
+    });
+
     test("custom alcohol 노트도 목록에 포함된다", async () => {
       const customNoteList = {
         ...listResponse,
