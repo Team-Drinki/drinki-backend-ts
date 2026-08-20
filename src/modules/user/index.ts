@@ -1,4 +1,5 @@
 import { Elysia } from "elysia";
+import { authGuard } from "../auth/middleware";
 import { User } from "./service";
 import {
   userProfile,
@@ -13,6 +14,26 @@ import {
 export const user = new Elysia({
   prefix: "/users",
 })
+  // ===== 특정 사용자 정보 조회 (공개) =====
+
+  // 특정 사용자 정보 조회
+  .get(
+    "/:userId",
+    async ({ params }: any) => {
+      return await User.getPublicProfile(params.userId);
+    },
+    {
+      params: userIdParam,
+      response: {
+        200: publicProfile,
+      },
+      detail: {
+        summary: "특정 사용자 정보 조회 API",
+        tags: ["User"],
+      },
+    },
+  )
+  .use(authGuard)
   // ===== 내 정보 관리 =====
 
   // 내 정보 조회
@@ -84,26 +105,6 @@ export const user = new Elysia({
       detail: {
         summary: "내 커뮤니티 글 리스트 조회 API",
         tags: ["User", "Post"],
-      },
-    },
-  )
-
-  // ===== 특정 사용자 정보 조회 =====
-
-  // 특정 사용자 정보 조회
-  .get(
-    "/:userId",
-    async ({ params }: any) => {
-      return await User.getPublicProfile(params.userId);
-    },
-    {
-      params: userIdParam,
-      response: {
-        200: publicProfile,
-      },
-      detail: {
-        summary: "특정 사용자 정보 조회 API",
-        tags: ["User"],
       },
     },
   );

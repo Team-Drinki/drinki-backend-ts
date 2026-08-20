@@ -308,11 +308,7 @@ describe("Wish API", () => {
         }));
 
         const response = await app.handle(
-          new Request("http://localhost/api/v1/wishes/wishes/123", {
-            headers: {
-              Cookie: `accessToken=${validToken}`,
-            },
-          }),
+          new Request("http://localhost/api/v1/wishes/wishes/123"),
         );
 
         expect(response.status).toBe(200);
@@ -336,12 +332,12 @@ describe("Wish API", () => {
         expect(response.status).toBe(200);
       });
 
-      test("should return 401 without token", async () => {
+      test("should return user wish list without token", async () => {
         const response = await app.handle(
           new Request("http://localhost/api/v1/wishes/wishes/123"),
         );
 
-        expect(response.status).toBe(401);
+        expect(response.status).toBe(200);
       });
     });
   });
@@ -349,13 +345,12 @@ describe("Wish API", () => {
   // ===== 인증 관련 테스트 =====
 
   describe("Authentication", () => {
-    test("all endpoints should require authentication", async () => {
+    test("my endpoints should require authentication", async () => {
       const endpoints = [
         { method: "GET", url: "/api/v1/wishes/my" },
         { method: "GET", url: "/api/v1/wishes/my/alcohol/123" },
         { method: "POST", url: "/api/v1/wishes/my/alcohol/123" },
         { method: "DELETE", url: "/api/v1/wishes/my/alcohol/123" },
-        { method: "GET", url: "/api/v1/wishes/wishes/123" },
       ];
 
       for (const endpoint of endpoints) {

@@ -316,11 +316,7 @@ describe("User API", () => {
         }));
 
         const response = await app.handle(
-          new Request("http://localhost/api/v1/users/123", {
-            headers: {
-              Cookie: `accessToken=${validToken}`,
-            },
-          }),
+          new Request("http://localhost/api/v1/users/123"),
         );
 
         expect(response.status).toBe(200);
@@ -349,12 +345,25 @@ describe("User API", () => {
         expect(response.status).toBe(500);
       });
 
-      test("should return 401 without token", async () => {
+      test("should return public profile without token", async () => {
+        mock.module("../src/modules/user/service", () => ({
+          User: {
+            getPublicProfile: mock(async (userId: number) => ({
+              id: userId,
+              nickname: "Public User",
+              profileImageUrl: "https://example.com/public.jpg",
+              wishCnt: 10,
+              noteCnt: 5,
+              createdAt: new Date("2024-01-01"),
+            })),
+          },
+        }));
+
         const response = await app.handle(
           new Request("http://localhost/api/v1/users/123"),
         );
 
-        expect(response.status).toBe(401);
+        expect(response.status).toBe(200);
       });
     });
   });
@@ -362,12 +371,11 @@ describe("User API", () => {
   // ===== 인증 관련 테스트 =====
 
   describe("Authentication", () => {
-    test("all endpoints should require authentication", async () => {
+    test("my endpoints should require authentication", async () => {
       const endpoints = [
         "/api/v1/users/my",
         "/api/v1/users/my/notes",
         "/api/v1/users/my/posts",
-        "/api/v1/users/123",
       ];
 
       for (const endpoint of endpoints) {

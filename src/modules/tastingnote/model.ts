@@ -66,6 +66,7 @@ export namespace TastingNoteModel {
         alcoholName: t.String(),  // COALESCE fallback ensures non-null
         noteImage: t.String(),
         writer: t.String(),
+        writerImage: t.Nullable(t.String()),
         commentNum: t.Number(),
         like: t.Number(),
         unlike: t.Number(),

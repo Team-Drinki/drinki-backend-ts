@@ -48,14 +48,15 @@ const app = new Elysia()
           }),
         )
         .use(auth)
-        .use((app) => authGuard(app))
         // 테스트용 API(인증 미들웨어 확인)
-        .get("/me", ({ authUser }) => {
-          return {
-            message: "OK",
-            userId: authUser.userId,
-          };
-        })
+        .guard({}, (app) =>
+          app.use(authGuard).get("/me", ({ authUser }) => {
+            return {
+              message: "OK",
+              userId: authUser.userId,
+            };
+          }),
+        )
         .use(alcohol)
         .use(user)
         .use(wish)
